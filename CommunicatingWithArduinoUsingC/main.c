@@ -3,16 +3,26 @@
 
 int main()
 {
-    int data[3] = {1, 22, 3};  //Random data we want to send
+    //int data[3] = {1, 22, 3};  //Random data we want to send
+    int size;
+    printf("please define input array size: \n");
+    scanf("%d", &size);
+    int data[size];
     FILE *file;
     file = fopen("/dev/ttyUSB0","w");  //Opening device file
-    //fprintf(file,"%c",1);
-    int i = 0;
-    for(i = 0 ; i < 3 ; i++)
+
+    printf("please write inputs value:\n");
+    for(int i = 0; i < size ; i++ ){
+        //printf("%d is coming !\n", %d , i);
+        scanf("%d", &data[i]);
+    }
+    printf("processing...\n");
+
+    for(int i = 0 ; i < size ; i++)
     {
         fprintf(file,"%d",data[i]); //Writing to the file
-        fprintf(file,"%c",','); //To separate digits
-        //fprintf(file,"%c", data[i]);
+        fprintf(file,"%c",',');
+        printf("%d ", data[i]);
         sleep(1);
     }
 
