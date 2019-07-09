@@ -24,6 +24,10 @@ void loop() {
       Serial.println("led is off");
       write(0);
     }
+    else if (ch == "0") {
+      Serial.println("brightness rate : %0");
+      write(0);
+    }
     else if (ch == "1") {
       Serial.println("brightness rate : %10");
       write(1);
@@ -61,7 +65,7 @@ void loop() {
       write(9);
     }
     else if (ch == "10"){
-      Serial.println("led is on");
+      Serial.println("brightness rate : %100");
       write(10);
     }
     
