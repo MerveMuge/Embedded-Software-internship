@@ -32,6 +32,9 @@ void homePage() {
     else if (ch == "2") {
       flash();
     }
+    else if (ch == "3") {
+      run_together();
+    }
     else if (ch == "4") {
       led = led_swithc();
     }
@@ -174,24 +177,22 @@ void flash() {
         }while(StartTime >= EndTime);
         digitalWrite(led, HIGH);
       */
-      if( (chFlashIn == "r") || (chFlashIn == "R") ){
-          homePage();
+      if ( (chFlashIn == "r") || (chFlashIn == "R") ) {
+        homePage();
       }
-      else if((chFlashIn != "r") && (chFlashIn != "R") && (period <= 0) ){
+      else if ((chFlashIn != "r") && (chFlashIn != "R") && (period <= 0) ) {
         Serial.println("Invalid Input");
       }
-      while (period >0) {
+      while (period > 0) {
         delay( 1000 * period );
         digitalWrite(led, HIGH);
         delay(1000 * period);
         digitalWrite(led, LOW);
       }
-      
+
     }
   }
- /* if ( (chFlash == "r") || (chFlash == "R") ) {
-    homePage();
-  }*/
+
 }
 
 int led_swithc() {
@@ -219,12 +220,26 @@ int led_swithc() {
       digitalWrite(led, HIGH);
     } else if ( (ch_led != "1") && (ch_led != "2") && (ch_led != "3") && (ch_led != "") && (ch_led != "r") && (ch_led != "R") ) {
       Serial.println("Wrong input");
-    } else if( (ch_led == "r") || (ch_led == "R") ){
-          homePage();
-      }
+    } else if ( (ch_led == "r") || (ch_led == "R") ) {
+      homePage();
+    }
   }
   return led;
 
+}
+
+void run_together() {
+  clear_page();
+  Serial.println("In this option you should define pwm and flash rate");
+  Serial.println("First define pwm rate. (0 - 10)");
+  String chRunTg;
+  chRunTg = Serial.readString();
+  chRunTg.trim();
+  //while(1){
+    
+  //Serial.println(chRunTg);
+  //}
+  
 }
 
 void loop() {
@@ -232,12 +247,15 @@ void loop() {
     String ch;
     ch = Serial.readString();
     ch.trim();
-    
+
     if (ch == "1") {
       pwm();
     }
     else if (ch == "2") {
       flash();
+    }
+    else if (ch == "3") {
+      run_together();
     }
     else if (ch == "4") {
       led = led_swithc();
