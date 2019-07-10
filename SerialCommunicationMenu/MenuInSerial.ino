@@ -190,7 +190,7 @@ void flash() {
         if (checkReturn_mainPage(chFlash_check) == 1 ) {
           break;
         }
-        
+
         unsigned long time_now = millis();
 
         if (checkReturn_mainPage(chFlash_check) == 1 ) {
@@ -263,6 +263,7 @@ int led_swithc() {
 void run_together() {
 
   clear_page();
+  Serial.println("r/R -> return Home Page");
   Serial.println("In this option you should define pwm and flash rate");
   Serial.println("First, define pwm rate. (0 - 10)");
   Serial.println("Second, define flash rate.");
@@ -276,8 +277,9 @@ void run_together() {
     if ( (chRunTg == "r") || (chRunTg == "R") ) {
       homePage();
     }
+
     else if ((chRunTg != "")) {
-      //Serial.println(chRunTg);
+      //find PWM value exit while
       break;
     }
   }
@@ -299,7 +301,7 @@ void run_together() {
       homePage();
     }
     if ((chRunTg_flash != "")) {
-      //Serial.println(chRunTg);
+      //Find flash rate exit while
       break;
     }
   }
@@ -316,58 +318,44 @@ void run_together() {
   String chRunTg_check;
   while (period > 0) {
 
-    chRunTg_check = Serial.readString();
-    chRunTg_check.trim();
-    if ((chRunTg_check == "r") || (chRunTg_check == "R" )) {
+    if (checkReturn_mainPage(chRunTg_check) == 1 ) {
       break;
     }
 
     unsigned long time_now = millis();
 
-    chRunTg_check = Serial.readString();
-    chRunTg_check.trim();
-    if ((chRunTg_check == "r") || (chRunTg_check == "R" )) {
+    if (checkReturn_mainPage(chRunTg_check) == 1 ) {
       break;
     }
 
     while (millis() < time_now + (period * 1000)) {
       //wait approx. [period] ms
 
-      chRunTg_check = Serial.readString();
-      chRunTg_check.trim();
-      if ((chRunTg_check == "r") || (chRunTg_check == "R" )) {
+      if (checkReturn_mainPage(chRunTg_check) == 1 ) {
         break;
       }
 
     }
 
-    chRunTg_check = Serial.readString();
-    chRunTg_check.trim();
-    if ((chRunTg_check == "r") || (chRunTg_check == "R" )) {
+    if (checkReturn_mainPage(chRunTg_check) == 1 ) {
       break;
     }
 
     analogWrite(led, unit_brightness * (chRunTg.toInt()));
 
-    chRunTg_check = Serial.readString();
-    chRunTg_check.trim();
-    if ((chRunTg_check == "r") || (chRunTg_check == "R" )) {
+    if (checkReturn_mainPage(chRunTg_check) == 1 ) {
       break;
     }
 
     delay(1000);
 
-    chRunTg_check = Serial.readString();
-    chRunTg_check.trim();
-    if ((chRunTg_check == "r") || (chRunTg_check == "R" )) {
+    if (checkReturn_mainPage(chRunTg_check) == 1 ) {
       break;
     }
 
     digitalWrite(led, LOW);
 
-    chRunTg_check = Serial.readString();
-    chRunTg_check.trim();
-    if ((chRunTg_check == "r") || (chRunTg_check == "R" )) {
+    if (checkReturn_mainPage(chRunTg_check) == 1 ) {
       break;
     }
 
