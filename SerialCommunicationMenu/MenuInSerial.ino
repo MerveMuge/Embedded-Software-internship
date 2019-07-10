@@ -45,7 +45,8 @@ void homePage() {
 
 void setup() {
   pinMode(led, OUTPUT);
-  Serial.begin(9600);
+  Serial.begin(115200);
+  delay(1000);
   homePage();
 }
 
@@ -61,11 +62,14 @@ void printBrightnessRate(char ch) {
   Serial.print("0");
 }
 
-void checkQuit(String chInPWM) {
-  chInPWM = Serial.readString();
-  chInPWM.trim();
-  if ((chInPWM == "q") || (chInPWM == "Q") ) {
-    homePage();
+int checkReturn_mainPage(String chString) {
+  chString = Serial.readString();
+  chString.trim();
+  if ((chString == "r") || (chString == "R" )) {
+    return 1;
+  }
+  else {
+    return 0;
   }
 }
 
@@ -162,6 +166,7 @@ void flash() {
     chFlash = Serial.readString();
     chFlash.trim();
     if ( (chFlash != "") ) {
+
       Serial.print("Input: ");
       Serial.println(chFlash);
       chFlashIn = chFlash;
@@ -169,26 +174,53 @@ void flash() {
       int period = 60 / divider;
       Serial.print("period ");
       Serial.println(period);
-      /*unsigned long StartTime = millis();
-        Serial.println(StartTime);
-        unsigned long EndTime = period*1000 + StartTime;
-        do{
-        StartTime= millis();
-        }while(StartTime >= EndTime);
-        digitalWrite(led, HIGH);
-      */
+
       if ( (chFlashIn == "r") || (chFlashIn == "R") ) {
         homePage();
       }
       else if ((chFlashIn != "r") && (chFlashIn != "R") && (period <= 0) ) {
         Serial.println("Invalid Input");
+        delay(3500);
+        clear_page();
       }
+
+      String chFlash_check;
       while (period > 0) {
-        delay( 1000 * period );
+
+        if (checkReturn_mainPage(chFlash_check) == 1 ) {
+          break;
+        }
+        
+        unsigned long time_now = millis();
+
+        if (checkReturn_mainPage(chFlash_check) == 1 ) {
+          break;
+        }
+
+        while (millis() < time_now + (period * 1000)) {
+          //wait approx. [period] ms
+
+          if (checkReturn_mainPage(chFlash_check) == 1 ) {
+            break;
+          }
+        }
         digitalWrite(led, HIGH);
-        delay(1000 * period);
+
+        if (checkReturn_mainPage(chFlash_check) == 1 ) {
+          break;
+        }
+        delay(1000);
+        if (checkReturn_mainPage(chFlash_check) == 1 ) {
+          break;
+        }
         digitalWrite(led, LOW);
+
+        if (checkReturn_mainPage(chFlash_check) == 1 ) {
+          break;
+        }
       }
+      homePage();
+      //Serial.println("here");
 
     }
   }
@@ -229,17 +261,119 @@ int led_swithc() {
 }
 
 void run_together() {
+
   clear_page();
   Serial.println("In this option you should define pwm and flash rate");
-  Serial.println("First define pwm rate. (0 - 10)");
+  Serial.println("First, define pwm rate. (0 - 10)");
+  Serial.println("Second, define flash rate.");
   String chRunTg;
   chRunTg = Serial.readString();
   chRunTg.trim();
-  //while(1){
-    
-  //Serial.println(chRunTg);
-  //}
-  
+
+  while (chRunTg == "") {
+    chRunTg = Serial.readString();
+    chRunTg.trim();
+    if ( (chRunTg == "r") || (chRunTg == "R") ) {
+      homePage();
+    }
+    else if ((chRunTg != "")) {
+      //Serial.println(chRunTg);
+      break;
+    }
+  }
+
+  clear_page();
+  Serial.print("pwm rate is : ");
+  Serial.println(chRunTg);
+  Serial.println("Please, define flash rate");
+  Serial.println("ps. if input is 2, calculation should be like : 60/2= 30  ");
+
+  String chRunTg_flash;
+  chRunTg_flash = Serial.readString();
+  chRunTg_flash.trim();
+
+  while (chRunTg_flash == "") {
+    chRunTg_flash = Serial.readString();
+    chRunTg_flash.trim();
+    if ( (chRunTg_flash == "r") || (chRunTg_flash == "R") ) {
+      homePage();
+    }
+    if ((chRunTg_flash != "")) {
+      //Serial.println(chRunTg);
+      break;
+    }
+  }
+  /*chRunTg_flash is a string convert to int and divide second(60) */
+  int divider = chRunTg_flash.toInt();
+  int period = 60 / divider;
+
+  clear_page();
+  Serial.print("pwm rate is : ");
+  Serial.println(chRunTg);
+  Serial.print("flash rate is : ");
+  Serial.println(period);
+
+  String chRunTg_check;
+  while (period > 0) {
+
+    chRunTg_check = Serial.readString();
+    chRunTg_check.trim();
+    if ((chRunTg_check == "r") || (chRunTg_check == "R" )) {
+      break;
+    }
+
+    unsigned long time_now = millis();
+
+    chRunTg_check = Serial.readString();
+    chRunTg_check.trim();
+    if ((chRunTg_check == "r") || (chRunTg_check == "R" )) {
+      break;
+    }
+
+    while (millis() < time_now + (period * 1000)) {
+      //wait approx. [period] ms
+
+      chRunTg_check = Serial.readString();
+      chRunTg_check.trim();
+      if ((chRunTg_check == "r") || (chRunTg_check == "R" )) {
+        break;
+      }
+
+    }
+
+    chRunTg_check = Serial.readString();
+    chRunTg_check.trim();
+    if ((chRunTg_check == "r") || (chRunTg_check == "R" )) {
+      break;
+    }
+
+    analogWrite(led, unit_brightness * (chRunTg.toInt()));
+
+    chRunTg_check = Serial.readString();
+    chRunTg_check.trim();
+    if ((chRunTg_check == "r") || (chRunTg_check == "R" )) {
+      break;
+    }
+
+    delay(1000);
+
+    chRunTg_check = Serial.readString();
+    chRunTg_check.trim();
+    if ((chRunTg_check == "r") || (chRunTg_check == "R" )) {
+      break;
+    }
+
+    digitalWrite(led, LOW);
+
+    chRunTg_check = Serial.readString();
+    chRunTg_check.trim();
+    if ((chRunTg_check == "r") || (chRunTg_check == "R" )) {
+      break;
+    }
+
+  }
+  homePage();
+
 }
 
 void loop() {
