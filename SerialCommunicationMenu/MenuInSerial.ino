@@ -2,8 +2,9 @@ int led = 11;
 int led_2 = 10;
 int led_3 = 9;
 
-int unit_brightness = 255 / 10;
+//int leds[3];
 
+int unit_brightness = 255 / 10;
 
 void clear_page()
 {
@@ -45,6 +46,7 @@ void homePage() {
 
 void setup() {
   pinMode(led, OUTPUT);
+  pinMode(led_3, OUTPUT);
   Serial.begin(115200);
   delay(1000);
   homePage();
@@ -250,10 +252,39 @@ int led_swithc() {
       digitalWrite(led, LOW);
       led = led_3;
       digitalWrite(led, HIGH);
-    } else if ( (ch_led != "1") && (ch_led != "2") && (ch_led != "3") && (ch_led != "") && (ch_led != "r") && (ch_led != "R") ) {
-      Serial.println("Wrong input");
     } else if ( (ch_led == "r") || (ch_led == "R") ) {
       homePage();
+    } else {
+      int string_lenght = ch_led.length();
+      if (string_lenght > 1) {
+        int j = 0;
+        Serial.println("hello");
+
+        //digitalWrite(led_3, HIGH);
+        //digitalWrite(led_2, LOW);
+        int array_lenght = string_lenght + 1;
+        char char_array[array_lenght];
+        ch_led.toCharArray(char_array, array_lenght);
+        /*for (int i = 0; i < array_lenght ; i++) {
+            if(char_array[i] == "1"){
+              pinMode(led, OUTPUT);
+              digitalWrite(led,HIGH);
+              leds[j]= 11;
+              j++;
+            }else if(char_array[i] == "2"){
+              pinMode(led_2, OUTPUT);
+              digitalWrite(led_2 ,HIGH);
+              leds[j]= 10;
+              j++;
+            }else if(char_array[i] == "3"){
+              pinMode(led_3, OUTPUT);
+              digitalWrite(led_3 ,HIGH);
+              leds[j]= 9;
+              j++;
+            }
+        }*/
+
+      }
     }
   }
   return led;
@@ -285,6 +316,7 @@ void run_together() {
   }
 
   clear_page();
+  Serial.println("r/R -> return Home Page");
   Serial.print("pwm rate is : ");
   Serial.println(chRunTg);
   Serial.println("Please, define flash rate");
@@ -310,6 +342,7 @@ void run_together() {
   int period = 60 / divider;
 
   clear_page();
+  Serial.println("r/R -> return Home Page");
   Serial.print("pwm rate is : ");
   Serial.println(chRunTg);
   Serial.print("flash rate is : ");
@@ -334,7 +367,6 @@ void run_together() {
       if (checkReturn_mainPage(chRunTg_check) == 1 ) {
         break;
       }
-
     }
 
     if (checkReturn_mainPage(chRunTg_check) == 1 ) {
