@@ -1,0 +1,183 @@
+Section -4
+
+Which of the following are Linux desktop environments? (Select all that apply.)
+
+(A) GTK+
+(B) GNOME
+(C) KDE
+(D) Evolution
+(D) Xfce
+
+B, C, E. GNOME, KDE, and Xfce are all Linux desktop environments.
+
+
+If you want to enable one Linux computer to access files stored on another Linux computer's hard disk, which of the following network protocols is the best choice?
+
+(A) SMTP
+(B) NFS
+(C) PHP
+(D) DNS
+(E) DHCP
+
+B. The Network File System (NFS) was designed for exactly the task described in the question, so option B is correct. 
+
+The Simple Mail Transfer Protocol (SMTP) enables one computer to send email messages to another computer, so it's a poor choice for achieving the stated goal and option A is incorrect. 
+The PHP: Hypertext Processor (PHP) language is used to generate dynamic content for web pages, so option C is incorrect. 
+The Domain Name System (DNS) is a protocol for delivering the mappings between hostnames and IP addresses to computers, so it won't easily achieve the stated goals, making option D incorrect.
+The Dynamic Host Configuration Protocol (DHCP) enables one computer to provide network configuration information to another one over a network link, so option E is incorrect.
+
+
+In which of the following languages was most of the Linux kernel written?
+
+(A) Bash shell script
+(B) Java
+(C) C        ---correct
+(D) C++
+(E) Perl
+
+
+OpenOffice.org forked from Calligra. --F 
+
+LibreOffice forked from the pre-Apache version of OpenOffice.org in 2011. Calligra split from the KOffice office suite, which is no longer maintained.
+
+
+Python is generally implemented as an interpreted language.  -T
+
+Malicious outsiders can disrupt servers even if the computer that runs them is never broken into.  -T
+
+
+SECTION 5
+
+Which of the following commands provides the most information about your motherboard's features?	--lspci
+
+Why might you want to partition a hard disk? (Select all that apply.)
+	--To install more then one OS on the disk.  To separate filesystem data from swap space
+
+Which of the following devices us not commonly attached via USB?
+	Video monitors ---
+	Scanners 
+	External hard disks 
+	Printers 
+	Keyboards
+
+An Intel 64 CPU is capable of running a Linux distribution identified as
+being for the AMD64 CPU.
+
+SECTION 6
+
+What keystroke moves the cursor to the start of the line when typing a command in Bash?
+Ctrl+A
+
+FALSE     ---Pressing Alt+F2 in the GUI brings up a text-mode display that you can
+use to log in to Linux. (TRUE Version : When in X, Ctrl must be added to the VT-switching keystroke, so the correct keystroke should be Ctrl+Alt+F2 (or other function keys, through )
+
+TRUE	  ---You can force man to display a man page in a specific section of the manual by preceding the search name with the section number, as in man 5 passwd. 
+(EXplanation: When you want to override man's search order, you specify the desired manual section between man and the command name, filename, or other name on which you're searching.)
+
+FALSE	  ---info pages are a web-based documentation format.
+
+FALSE	  ---Linux documentation in the /usr/share/doc directory tree is almost always in OpenDocument text format.
+(False. Individual program authors decide on a documentation file format based on their own specific needs and preferences. Although some documents are in OpenDocument Text format, many documents are not.)
+
+Each document in an info page is known as a(n) NODE.
+
+The LOCATE command searches a database of filenames, enabling you to identify files quickly whose names match a term that you specify.
+
+-----------
+
+SECTION 7
+
+1-  Which of the following commands would you type to rename newfile.txt to
+afile.txt ?
+A. mv newfile.txt afile.txt
+
+2-  You want to copy a directory, MyFiles , to a USB flash drive that uses the FAT filesys-
+tem. The contents of MyFiles are as follows:
+$ ls -l MyFiles/
+total 276
+-rw-r–r– 1 jen users 129840 Nov 8 15:13 contract.odt
+-rw-r–r– 1 rod users 42667 Nov 8 15:12 outline.pdf
+-rw-r–r– 1 sam users 105979 Nov 8 15:12 Outline.PDF
+The USB flash drive is mounted at /media/usb , and so you type cp -a MyFiles/
+/media/usb . What problem will occur when you attempt to copy these files?
+
+A. The command will fail because it tries to create links.
+B. The MyFiles directory will be copied, but none of its files will be copied.
+C. One file will be missing on the USB flash drive.
+D. One file’s name will be changed during the copy.
+E. Everything will be fine; the command will work correctly.
+
+C. Because two files (outline.pdf and Outline.PDF) have names that differ only in case, and because FAT is a case-insensitive filesystem, one of those files will be missing on the copy. (Both files will be copied, but the second one copied will overwrite the first.) Thus option C is correct.
+
+SECTION 8
+
+Which of the following commands will print lines from the file world.txt that contain matches to changes and changed?
+
+A) grep change[ds] world.txt ++
+
+B) tar change[d-s] world.txt
+
+C) find "change'd|s'" world.txt
+
+D) cat world.txt changes changed
+
+E) find change[^ds] world.txt
+
+A. The grep utility finds matching text within a file and prints those lines. It accepts regular expressions, which means that you can place in brackets the two characters that differ in the words for which you're looking
+
+
+Which of the following redirection operators appends a program's standard output to an existing file without overwriting that file's original contents?
+
+A) |
+
+B) 2>
+
+C) &>
+
+D) >
+
+E) >>
+
+
+E. The >> operator appends standard output to a file, so option E is correct
+
+
+You've received a tar archive called data79.tar from a colleague, but you want to check the names of the files it contains before extracting them. Which of the following commands would you use to do this?
+
+A) tar uvf data79.tar
+
+B) tar cvf data79.tar
+
+C) tar xvf data79.tar
+
+D) tar tvf data79.tar
+
+E) tar Avf data79.tar
+
+D. With the tar utility, the --list (t) command is used to read the archive and display its contents. The --verbose (v) option creates a verbose file listing, and --file (f) specifies the filename—data79.tar in this case. 
+
+True/False
+* The regular expression Linu[^x].*lds matches the string Linus Torvalds. 
+True. The special characters [^x] match any single character except x, and .* matches any sequence of any characters. The string Linus Torvalds is just one of many strings to match the specified regular expression.
+
+* The find command enables you to locate files based on their sizes.
+True. You can use the -size n option in the find command to locate files based on their sizes.
+
+* To compress files archived with zip, you must use an external compression program such as gzip or bzip2 in a pipeline with zip.
+False. The zip utility creates or manipulates zip archive files. This file type supports compression directly, as does the zip program. Thus there's no need to involve another compression program to compress files archived with zip.
+
+* The character that represents the start of a line in a regular expression is ________^_____.
+
+* The _____cut________ command can extract specified data fields from a file's records.
+
+* Complete the following command to redirect both standard output and a standard error from the bigprog program to the file out.txt.
+
+$__&>___ bigprog out.txt
+
+*The gzip, bzip2, and xz programs all perform ___lossless___ compression, in which the uncompressed data exactly matches the original precompression data.
+
+
+
+
+
+
