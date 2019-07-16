@@ -176,7 +176,59 @@ $__&>___ bigprog out.txt
 
 *The gzip, bzip2, and xz programs all perform ___lossless___ compression, in which the uncompressed data exactly matches the original precompression data.
 
+CH9 -NOTES
 
+* two package systems, RPM and Debian, are common (although others exist as well).
+
+* The Linux kernel l is the core of a Linux installation. The kernel manages memory, provides software with a way to access the hard disk, doles out CPU time, and performs other critical low-level tasks. The kernel is loaded early in the boot process, and it’s the kernel that’s responsible for managing every other piece of software on a running Linux computer.
+
+* The init process is then responsible for starting all the other basic programs that Linux must run, such as the programs that manage logins and always-up servers
+
+* Before you can manage processes, you must be able to identify them. The ps and top utilities can help you identify processes. In either case, you can search for processes in various ways, such as by  ame or by resource use. You may also want to identify how much memory your processes are consuming, which you can do with the free command.
+
+* typing ps ax usually produces the desired information
+
+* Although ps can return process priority and CPU use information, the program’s output is usually sorted by PID number, and it provides information at only a single moment in time.
+
+* top sorts its entries by CPU use, and it updates its display every few seconds.
+
+* The top command shows system summary information and information about the most CPU-intensive processes on a computer.
+
+* Many programs that run in the background (daemons) write information about their normal operations to log files , which record such notes. Consulting log files can therefore be an important part of diagnosing problems with daemons.
+
+* LOG is the file extension for an automatically produced file that contains a record of events from certain software and operating systems. While they can contain a number of things, log files are often used to show all events associated with the system or application that created them. For example, your backup program might keep log files showing exactly what happened (or didn’t happen) during a backup. Windows keeps all kinds of log files for its various services.
+
+* Linux stores most log fi les in the /var/log directory tree.
+
+* Not all programs log messages. Typically, only daemons do so; ordinary user programs display error messages in other ways—in GUI dialog boxes or in a text-mode terminal.
+
+* The kernel ring buffer is something like a log file for the kernel; however, unlike other log files, it’s stored in memory rather than in a disk file. Like regular log files, its contents continue to change as the computer runs.
+
+What is the usual name for the first process that the Linux kernel runs, aside from itself?
+A. init ++
+B. bash
+C. cron
+D. login
+E. grub
+
+
+Which of the following tools is best suited to installing a software package and all its dependencies on a Debian computer?
+
+E. apt-get
+
+Where do most log files reside on a Linux computer?
+
+A. /var/log
+
+* By default, the first process listed in top is currently consuming the most CPU time. --- TRUE
+
+* The dmesg command may produce different output after a computer has been running for weeks after it first started ---TRUE
+
+* Most Linux distributions maintain information on what packages are installed in the ___package database__ (two words)
+
+* You’re using bash , and you type emacs to launch the emacs editor. In this case, emacs is bash ’s ___child__
+
+* General system messages are likely to be found in /var/log/messages or /var/ log/_syslog__ , depending on your distribution.
 
 
 
