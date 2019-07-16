@@ -176,7 +176,7 @@ $__&>___ bigprog out.txt
 
 *The gzip, bzip2, and xz programs all perform ___lossless___ compression, in which the uncompressed data exactly matches the original precompression data.
 
-CH9 -NOTES
+SECTION 9 -NOTES
 
 * two package systems, RPM and Debian, are common (although others exist as well).
 
