@@ -1,4 +1,4 @@
-        /*====================================================================================================*/
+                /*====================================================================================================*/
         /* Serial Port Programming in C (Serial Port Write)                                                   */
 	/* Non Cannonical mode                                                                                */
 	/*----------------------------------------------------------------------------------------------------*/
@@ -116,6 +116,7 @@
 		int index = -1;
     	char c ;
     	scanf("%c", &c);
+    	int pwm_temp;
 
     	printf("---here 1 \n"); //check point1
 
@@ -124,32 +125,61 @@
 			//printf("\n start the while here 2 \n"); //check point2
 			//printf("first define which is in while  %c \n", c );
 
-			
-			
 			//printf("second define %c \n", c );
 			if( c != '\0') {
-
 			
 				if(index == 0){
 
 					//printf("here 3 START BIT\n"); //check point3
-			
 					write_buffer[0] = '0';
 
 				}else{
+					if(c == '1' ) {//PWM
 
-					//printf("here 4 \n"); //check point4
-			
-					write_buffer[index] = c;
+						printf("please define pwm rate from 0 to 10\n");
+						scanf("%d", &pwm_temp);
+
+						if( (pwm_temp > 10) || (pwm_temp < 0) ){
+							printf("wrong input" );
+						}else{
+
+							write_buffer[1] = '0x01';
+							for(int i = 2 ; i < 5 ; i++ ){
+								write_buffer[i] = '0';
+							}
+							if ( pwm_temp != 10 ){
+								printf("here!\n");
+								char character = pwm_temp + '0';
+								write_buffer[6] = character;
+							}else{
+								
+							}
+						}
+
+
+					}
+					else if( c == '2'){ // flash
+						write_buffer[2] = '0x03';
+					}
+					else if(c == '3'){ // run tg
+						write_buffer[3] = '0x04';
+					}
+					else if(c == '4'){
+						write_buffer[4] = '0x05';
+					}
 				}
 				index++;
 			
 			}
-			write_buffer[ ( sizeof(write_buffer) -1)] = '1';
 			printf("\n here it comes\n");
+
+			for(int i = 0; i< sizeof(write_buffer) ; i++){
+				printf("%d ", i);
+			}
+			printf("\n");
 			
 			for(int i = 0; i < sizeof(write_buffer) ; i++){
-				printf("%c %d\n", write_buffer[i], i);
+				printf("%c ", write_buffer[i]);
 			}
 			bytes_written = write(fd,write_buffer , sizeof(write_buffer));
 			scanf("%c", &c);
