@@ -2,8 +2,8 @@
         /* Serial Port Programming in C (Serial Port Write)                                                   */
 	/* Non Cannonical mode                                                                                */
 	/*----------------------------------------------------------------------------------------------------*/
-        /* Program writes a character to the serial port at 9600 bps 8N1 format                               */
-	/* Baudrate - 9600                                                                                    */
+        /* Program writes a character to the serial port at 115200 bps 8N1 format                               */
+	/* Baudrate - 115200                                                                                    */
 	/* Stop bits -1                                                                                       */
 	/* No Parity                                                                                          */
         /*----------------------------------------------------------------------------------------------------*/
@@ -49,16 +49,18 @@
 		#include <stdlib.h>
 		#include <string.h>
 
-		int checkisBiggerThan10LessThan0(int temp){
-			if( (temp > 10) || (temp < 0) ){
+		int checkisBiggerThanZero_lessThanUpperLimit(int temp ,int upper_limit){
+
+			if( (temp > upper_limit) || (temp < 0) ){
 				printf("Wrong Input.\n");
+
 				return 1;
 			}else{
 				return 0;
 			}
 		}
 
-		void insertDataIn_5_6(int data){
+		char * insertDataIn_5_6(int data, char * write_buffer){
 			if(data < 10){
 
 				char character = data + '0';
@@ -70,7 +72,7 @@
 			}else{
 			    char buffer[2];
 
-			    printf("here\n");
+			    printf("INSERT\n");
 				sprintf(buffer, "%d", data);
 
 			    printf(" %c %c \n", buffer[0] ,buffer[1]);
@@ -79,12 +81,13 @@
 			    write_buffer[7] = '0x00';
 			    write_buffer[8] = '0x00';
 			}
+			return write_buffer;
 		}
 
 
     	void main(void)
     	{
-        	int fd;/*File Descriptor*/
+        int fd;/*File Descriptor*/
 		
 		printf("\n +----------------------------------+");
 		printf("\n |        Serial Port Write         |");
@@ -112,8 +115,8 @@
 
 		tcgetattr(fd, &SerialPortSettings);	/* Get the current attributes of the Serial port */
 
-		cfsetispeed(&SerialPortSettings,B9600); /* Set Read  Speed as 9600                       */
-		cfsetospeed(&SerialPortSettings,B9600); /* Set Write Speed as 9600                       */
+		cfsetispeed(&SerialPortSettings,B115200); /* Set Read  Speed as 115200                       */
+		cfsetospeed(&SerialPortSettings,B115200); /* Set Write Speed as 115200                       */
 
 		SerialPortSettings.c_cflag &= ~PARENB;   /* Disables the Parity Enable bit(PARENB),So No Parity   */
 		SerialPortSettings.c_cflag &= ~CSTOPB;   /* CSTOPB = 2 Stop bits,here it is cleared so 1 Stop bit */
@@ -132,7 +135,7 @@
 		if((tcsetattr(fd,TCSANOW,&SerialPortSettings)) != 0) /* Set the attributes to the termios structure*/
 		    printf("\n  ERROR ! in Setting attributes");
 		else
-                    printf("\n  BaudRate = 9600 \n  StopBits = 1 \n  Parity   = none");
+                    printf("\n  BaudRate = 115200 \n  StopBits = 1 \n  Parity   = none");
 			
 	        /*------------------------------- Write data to serial port -----------------------------*/
         int size;
@@ -154,15 +157,12 @@
     	int pwm_temp;
     	int flash_temp;
 
-    	printf("---here 1 \n"); //check point1
-
 		while(c != 'q'){ // stop bit
 
 			if( c != '\0') {
 			
 				if(index == 0){
 
-					//printf("here 3 START BIT\n"); //check point3
 					write_buffer[0] = '0x00';
 
 				}else{
@@ -170,60 +170,53 @@
 
 						printf("please define pwm rate from 0 to 10\n");
 						scanf("%d", &pwm_temp);
-
-						if(checkisBiggerThan10LessThan0(pwm_temp) == 0 ){
+						int upper_limit =10;
+						if(checkisBiggerThanZero_lessThanUpperLimit(pwm_temp, upper_limit) == 0 ){
 							write_buffer[1] = '0x01';
 							for(int i = 2 ; i < 5 ; i++ ){
 								write_buffer[i] = '0x00';
 							}
-							insertDataIn_5_6(pwm_temp);
+							//write_buffer = insertDataIn_5_6(pwm_temp);
+							*write_buffer = insertDataIn_5_6(pwm_temp, write_buffer);
+						}
+						if(checkisBiggerThanZero_lessThanUpperLimit(pwm_temp, upper_limit) == 1 ){
+							for(int i = 0; i< sizeof(write_buffer) ; i++){
+								write_buffer[i] = '0x00';
+							}
 						}
 
 					}
 					else if( c == '2'){ // flash
-						write_buffer[2] = '0x01';
-						
 
 						printf("please define flash rate from 0 to 10\n");
 						scanf("%d", &flash_temp);
-						if( (flash_temp > 60 ) || (flash_temp < 0 ) ){
-							printf("wrong input. \n");
-						}else{
-							write_buffer[1] = '0x00';
-							write_buffer[3] = '0x00';
-							write_buffer[4] = '0x00';
-
-							if(flash_temp < 10){
-								char character = flash_temp + '0';
-								write_buffer[5] = character;
-								for (int i = 6; i < 9; ++i)
-								{
-									write_buffer[i] = '0x00';
-								}
-							}else{
-								char buffer[2];
-
-							    printf("here\n");
-							    sprintf(buffer, "%d", flash_temp);
-
-							    //printf(" %c %c \n", buffer[0] ,buffer[1]);
-							    write_buffer[5] = buffer[0];
-							    write_buffer[6] = buffer[1];
-							    write_buffer[7] = '0x00';
-								write_buffer[8] = '0x00';
-
-
+						int upper_limit_flash = 60;
+						if(checkisBiggerThanZero_lessThanUpperLimit( flash_temp, upper_limit_flash) == 0 ){
+							write_buffer[2] = '0x01';
+							write_buffer[1] = '0x00' ;
+							for(int i = 3 ; i < 5 ; i++ ){
+								write_buffer[i] = '0x00';
 							}
+							//write_buffer = insertDataIn_5_6(flash_temp);
 						}
+
 					}
 					else if(c == '3'){ // run tg
 						int run_tg_pwm_temp;
 						int run_tg_flash_temp;
-						write_buffer[3] = '0x01';
+						//write_buffer[3] = '0x01';
 						printf("please define pwm rate and flash rate\n");
 						printf("first pwm \n");
 						scanf("%d", &run_tg_pwm_temp);
-						if( (run_tg_pwm_temp > 10) || (run_tg_pwm_temp < 0) ){
+						int run_tg_pwm_max = 10;
+						int run_tg_flash_max = 60; 
+
+						if(checkisBiggerThanZero_lessThanUpperLimit( run_tg_pwm_temp, run_tg_pwm_max) == 0 ){
+							printf("hello from here!!!!!!!!!!\n");
+						}
+
+
+						/*if( (run_tg_pwm_temp > 10) || (run_tg_pwm_temp < 0) ){
 							printf("Wrong input\n");
 						}else if(run_tg_pwm_temp < 10){
 							char character = flash_temp + '0';
@@ -244,7 +237,7 @@
 							    write_buffer[8] = '0x00';
 							printf("pwm part is completed. \nPlease define flash rate");
 							scanf("%d", &run_tg_flash_temp);
-						}
+						} */
 
 
 					}
