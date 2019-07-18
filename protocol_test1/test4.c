@@ -1,4 +1,4 @@
-                /*====================================================================================================*/
+        /*====================================================================================================*/
         /* Serial Port Programming in C (Serial Port Write)                                                   */
 	/* Non Cannonical mode                                                                                */
 	/*----------------------------------------------------------------------------------------------------*/
@@ -46,6 +46,41 @@
     	#include <termios.h> /* POSIX Terminal Control Definitions */
     	#include <unistd.h>  /* UNIX Standard Definitions 	   */ 
     	#include <errno.h>   /* ERROR Number Definitions           */
+		#include <stdlib.h>
+		#include <string.h>
+
+		int checkisBiggerThan10LessThan0(int temp){
+			if( (temp > 10) || (temp < 0) ){
+				printf("Wrong Input.\n");
+				return 1;
+			}else{
+				return 0;
+			}
+		}
+
+		void insertDataIn_5_6(int data){
+			if(data < 10){
+
+				char character = data + '0';
+				write_buffer[5] = character;
+
+				for (int i = 6; i < 9; i++){
+					write_buffer[i] = '0x00';
+				}
+			}else{
+			    char buffer[2];
+
+			    printf("here\n");
+				sprintf(buffer, "%d", data);
+
+			    printf(" %c %c \n", buffer[0] ,buffer[1]);
+			    write_buffer[5] = buffer[0];
+			    write_buffer[6] = buffer[1];
+			    write_buffer[7] = '0x00';
+			    write_buffer[8] = '0x00';
+			}
+		}
+
 
     	void main(void)
     	{
@@ -117,21 +152,18 @@
     	char c ;
     	scanf("%c", &c);
     	int pwm_temp;
+    	int flash_temp;
 
     	printf("---here 1 \n"); //check point1
 
 		while(c != 'q'){ // stop bit
 
-			//printf("\n start the while here 2 \n"); //check point2
-			//printf("first define which is in while  %c \n", c );
-
-			//printf("second define %c \n", c );
 			if( c != '\0') {
 			
 				if(index == 0){
 
 					//printf("here 3 START BIT\n"); //check point3
-					write_buffer[0] = '0';
+					write_buffer[0] = '0x00';
 
 				}else{
 					if(c == '1' ) {//PWM
@@ -139,30 +171,82 @@
 						printf("please define pwm rate from 0 to 10\n");
 						scanf("%d", &pwm_temp);
 
-						if( (pwm_temp > 10) || (pwm_temp < 0) ){
-							printf("wrong input" );
-						}else{
-
+						if(checkisBiggerThan10LessThan0(pwm_temp) == 0 ){
 							write_buffer[1] = '0x01';
 							for(int i = 2 ; i < 5 ; i++ ){
-								write_buffer[i] = '0';
+								write_buffer[i] = '0x00';
 							}
-							if ( pwm_temp != 10 ){
-								printf("here!\n");
-								char character = pwm_temp + '0';
-								write_buffer[6] = character;
-							}else{
-								
-							}
+							insertDataIn_5_6(pwm_temp);
 						}
-
 
 					}
 					else if( c == '2'){ // flash
-						write_buffer[2] = '0x03';
+						write_buffer[2] = '0x01';
+						
+
+						printf("please define flash rate from 0 to 10\n");
+						scanf("%d", &flash_temp);
+						if( (flash_temp > 60 ) || (flash_temp < 0 ) ){
+							printf("wrong input. \n");
+						}else{
+							write_buffer[1] = '0x00';
+							write_buffer[3] = '0x00';
+							write_buffer[4] = '0x00';
+
+							if(flash_temp < 10){
+								char character = flash_temp + '0';
+								write_buffer[5] = character;
+								for (int i = 6; i < 9; ++i)
+								{
+									write_buffer[i] = '0x00';
+								}
+							}else{
+								char buffer[2];
+
+							    printf("here\n");
+							    sprintf(buffer, "%d", flash_temp);
+
+							    //printf(" %c %c \n", buffer[0] ,buffer[1]);
+							    write_buffer[5] = buffer[0];
+							    write_buffer[6] = buffer[1];
+							    write_buffer[7] = '0x00';
+								write_buffer[8] = '0x00';
+
+
+							}
+						}
 					}
 					else if(c == '3'){ // run tg
-						write_buffer[3] = '0x04';
+						int run_tg_pwm_temp;
+						int run_tg_flash_temp;
+						write_buffer[3] = '0x01';
+						printf("please define pwm rate and flash rate\n");
+						printf("first pwm \n");
+						scanf("%d", &run_tg_pwm_temp);
+						if( (run_tg_pwm_temp > 10) || (run_tg_pwm_temp < 0) ){
+							printf("Wrong input\n");
+						}else if(run_tg_pwm_temp < 10){
+							char character = flash_temp + '0';
+							write_buffer[5] = character;
+							printf("pwm part is completed. \nPlease define flash rate");
+							scanf("%d", &run_tg_flash_temp);
+
+
+						}else if(run_tg_pwm_temp == 10){
+								char buffer[2];
+
+							    sprintf(buffer, "%d", run_tg_pwm_temp);
+
+							    //printf(" %c %c \n", buffer[0] ,buffer[1]);
+							    write_buffer[5] = buffer[0];
+							    write_buffer[6] = buffer[1];
+							    write_buffer[7] = '0x00';
+							    write_buffer[8] = '0x00';
+							printf("pwm part is completed. \nPlease define flash rate");
+							scanf("%d", &run_tg_flash_temp);
+						}
+
+
 					}
 					else if(c == '4'){
 						write_buffer[4] = '0x05';
