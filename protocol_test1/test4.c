@@ -294,6 +294,7 @@
 
     	void main(void){
 
+    	int odd =0;
         int fd;/*File Descriptor*/
     	fd = setUp();
 		
@@ -312,6 +313,7 @@
     	scanf("%c", &c);
 
 		while(c != 'q'){ // stop bit
+			odd++;
 
 			if( c != '\0') {
 				if(index == 0){
@@ -336,17 +338,22 @@
 					}
 				}
 				index++;
-			}
-			printf("\n here it comes\n");
 
-			for(int i = 0; i< sizeof(write_buffer) ; i++){ //print index numbers
-				printf("%d ", i);
+
 			}
-			printf("\n");
-			
-			for(int i = 0; i < sizeof(write_buffer) ; i++){
-				printf("%c ", write_buffer[i]);
+			if(odd % 2 == 1 ){
+				printf("\n here it comes\n");
+
+				for(int i = 0; i< sizeof(write_buffer) ; i++){ //print index numbers
+					printf("%d ", i);
+				}
+				printf("\n");
+				
+				for(int i = 0; i < sizeof(write_buffer) ; i++){
+					printf("%c ", write_buffer[i]);
+				}
 			}
+
 			bytes_written = write(fd,write_buffer , sizeof(write_buffer));
 			scanf("%c", &c);
 
