@@ -1,5 +1,5 @@
-        /*====================================================================================================*/
-        /* Serial Port Programming in C (Serial Port Write)                                                   */
+    /*====================================================================================================*/
+    /* Serial Port Programming in C (Serial Port Write)                                                   */
 	/* Non Cannonical mode                                                                                */
 	/*----------------------------------------------------------------------------------------------------*/
         /* Program writes a character to the serial port at 115200 bps 8N1 format                               */
@@ -66,7 +66,6 @@
 			}
 		}
 
-
 		char * insertDataIn_5_6(int data, char * write_buffer){
 			if(data < 10){
 
@@ -82,7 +81,6 @@
 
 				sprintf(buffer, "%d", data);
 
-			    printf(" %c %c \n", buffer[0] ,buffer[1]);
 			    write_buffer[5] = buffer[0];
 			    write_buffer[6] = buffer[1];
 			    write_buffer[7] = '0x00';
@@ -102,10 +100,8 @@
 			}
 			else{
 			    char buffer[2];
-
 				sprintf(buffer, "%d", data);
 
-			    printf(" %c %c \n", buffer[0] ,buffer[1]);
 			    write_buffer[7] = buffer[0];
 			    write_buffer[8] = buffer[1];
 			  
@@ -121,18 +117,13 @@
 		}
 
 		int findTotalDigitInNumber(int number){
-			//int no;
 			int totalDigits = 0;
 			
-			//scanf("%d",&no);
 			while(number!=0){
-			    
 			  number = number/10;
 			  totalDigits ++;
 			}
-			
-			printf("Total digits in the number is %d\n",totalDigits);
-
+			//printf("Total digits in the number is %d\n",totalDigits);
 			return totalDigits;
 		}
 
@@ -144,7 +135,6 @@
 		printf("\n +----------------------------------+");
 
 		/*------------------------------- Opening the Serial Port -------------------------------*/
-
 		/* Change /dev/ttyUSB0 to the one corresponding to your system */
 
         	fd = open("/dev/ttyUSB0",O_RDWR | O_NOCTTY | O_NDELAY);	/* ttyUSB0 is the FT232 based USB2SERIAL Converter   */
@@ -207,7 +197,6 @@
 			}else{
 				*write_buffer = *returnAllElementsZeroArray(write_buffer);
 			}
-
 			return write_buffer;
 
 		}
@@ -278,7 +267,7 @@
 			}else if(totalDigit < 1){
 				printf("Something goes wrong! \n Please define input properly and try again. \n" );
 			}else{
-				* write_buffer = *returnAllElementsZeroArray(write_buffer);
+				*write_buffer = *returnAllElementsZeroArray(write_buffer);
 
 				write_buffer[4] = '0x01'; //LED switch is work
 				write_buffer[1] = '0x00';
@@ -286,12 +275,7 @@
 				write_buffer[3] = '0x00';
 				write_buffer[8] = '0x00';
 				char buffer[3]; 
-				
 				sprintf(buffer, "%d", led_selection_temp); 
-
-				for (int i = 0; i < totalDigit ; i++){
-					printf(" %c\n", buffer[i]);
-				}
 
 				for (int i = 0; i < totalDigit ; i++){
 					if(buffer[i] == '1'){
