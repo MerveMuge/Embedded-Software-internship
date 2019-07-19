@@ -60,6 +60,7 @@
 			}
 		}
 
+
 		char * insertDataIn_5_6(int data, char * write_buffer){
 			if(data < 10){
 
@@ -73,7 +74,6 @@
 			else{
 			    char buffer[2];
 
-			    printf("INSERT\n");
 				sprintf(buffer, "%d", data);
 
 			    printf(" %c %c \n", buffer[0] ,buffer[1]);
@@ -97,7 +97,6 @@
 			else{
 			    char buffer[2];
 
-			    printf("INSERT\n");
 				sprintf(buffer, "%d", data);
 
 			    printf(" %c %c \n", buffer[0] ,buffer[1]);
@@ -198,9 +197,9 @@
 				for(int i = 2 ; i < 5 ; i++ ){
 					write_buffer[i] = '0x00';
 				}
-				*write_buffer = insertDataIn_5_6(pwm_temp, write_buffer);
+				*write_buffer = *insertDataIn_5_6(pwm_temp, write_buffer);
 			}else{
-				*write_buffer = returnAllElementsZeroArray(write_buffer);
+				*write_buffer = *returnAllElementsZeroArray(write_buffer);
 			}
 
 			return write_buffer;
@@ -220,13 +219,89 @@
 				write_buffer[i] = '0x00';
 			}
 							
-			*write_buffer = insertDataIn_5_6(flash_temp, write_buffer);
+			*write_buffer = *insertDataIn_5_6(flash_temp, write_buffer);
 			}else{
-				*write_buffer = returnAllElementsZeroArray(write_buffer);
+				*write_buffer = *returnAllElementsZeroArray(write_buffer);
 			}
 			return write_buffer;
 		}
 
+		char * run_tg(char * write_buffer){
+			int run_tg_pwm_temp;
+			int run_tg_flash_temp;
+						//write_buffer[3] = '0x01';
+			printf("please define pwm rate and flash rate\n");
+			printf("first pwm \n");
+			scanf("%d", &run_tg_pwm_temp);
+			int run_tg_pwm_max = 10;
+			int run_tg_flash_max = 60; 
+
+			if(checkisBiggerThanZero_lessThanUpperLimit( run_tg_pwm_temp, run_tg_pwm_max) == 0 ){
+							
+				write_buffer[1] = '0x00';
+				write_buffer[2] = '0x00';
+				write_buffer[3] = '0x01'; // run tg is working
+				write_buffer[4] = '0x00';
+				*write_buffer = *insertDataIn_5_6(run_tg_pwm_temp, write_buffer);
+
+				printf("please define flash rate max 60, min 1\n");
+				scanf("%d",&run_tg_flash_temp);
+
+				if(checkisBiggerThanZero_lessThanUpperLimit(run_tg_flash_temp, run_tg_flash_max) == 0 ){
+					*write_buffer = *insertDataIn_7_8(run_tg_flash_temp , write_buffer);
+				}else{
+					*write_buffer = *returnAllElementsZeroArray(write_buffer);
+				}
+			}else{
+				*write_buffer = *returnAllElementsZeroArray(write_buffer);
+			}
+
+			return write_buffer;
+		}
+
+		char * led_switch( char * write_buffer){
+			int led_selection_temp;
+			
+			printf("In this section you will have 3 LEDs. \n Your input will 1 ,2, 3 or combination of this values.");
+			printf("please define your input.\n");
+			scanf("%d", &led_selection_temp);
+			int totalDigit = findTotalDigitInNumber(led_selection_temp);
+			if(totalDigit > 3){
+				printf("totalDigit %d\n", totalDigit );
+				printf("Wrong Input. Your input value could be have max 3 digits.\n");
+			}else if(totalDigit < 1){
+				printf("Something goes wrong! \n Please define input properly and try again. \n" );
+			}else{
+				* write_buffer = *returnAllElementsZeroArray(write_buffer);
+
+				write_buffer[4] = '0x01'; //LED switch is work
+				write_buffer[1] = '0x00';
+				write_buffer[2] = '0x00';
+				write_buffer[3] = '0x00';
+				write_buffer[8] = '0x00';
+				char buffer[3]; 
+				
+				sprintf(buffer, "%d", led_selection_temp); 
+
+				for (int i = 0; i < totalDigit ; i++){
+					printf(" %c\n", buffer[i]);
+				}
+
+				for (int i = 0; i < totalDigit ; i++){
+					if(buffer[i] == '1'){
+						write_buffer[5] = '0x01';
+					}
+					else if(buffer[i] == '2'){
+						write_buffer[6] = '0x01';
+					}
+					else if(buffer[i] == '3'){
+						write_buffer[7] = '0x01';
+					}
+				}
+			}
+			return write_buffer;
+						
+		}
 
     	void main(void){
 
@@ -242,8 +317,7 @@
 		//bytes_written = write(fd,write_buffer , sizeof(write_buffer));/* use write() to send data to port                                            */
 																      /* "fd"                   - file descriptor pointing to the opened serial port */
 																      /*	"write_buffer"         - address of the buffer containing data	            */
-																      /* "sizeof(write_buffer)" - No of bytes to write                               */	
-										
+																      /* "sizeof(write_buffer)" - No of bytes to write                               */				
 		int index = -1;
     	char c ;
     	scanf("%c", &c);
@@ -251,102 +325,28 @@
 		while(c != 'q'){ // stop bit
 
 			if( c != '\0') {
-			
 				if(index == 0){
-
 					write_buffer[0] = '0x00';
 
 				}else{
 					if(c == '1' ) {//PWM
-						*write_buffer = pwm(write_buffer);
+						*write_buffer = *pwm(write_buffer);
 					}
 					else if( c == '2'){ // flash
-						*write_buffer = flash(write_buffer);
+						*write_buffer = *flash(write_buffer);
 					}
 					else if(c == '3'){ // run tg
-						int run_tg_pwm_temp;
-						int run_tg_flash_temp;
-						//write_buffer[3] = '0x01';
-						printf("please define pwm rate and flash rate\n");
-						printf("first pwm \n");
-						scanf("%d", &run_tg_pwm_temp);
-						int run_tg_pwm_max = 10;
-						int run_tg_flash_max = 60; 
-
-						if(checkisBiggerThanZero_lessThanUpperLimit( run_tg_pwm_temp, run_tg_pwm_max) == 0 ){
-							
-							write_buffer[1] = '0x00';
-							write_buffer[2] = '0x00';
-							write_buffer[3] = '0x01'; // run tg is working
-							write_buffer[4] = '0x00';
-							*write_buffer = insertDataIn_5_6(run_tg_pwm_temp, write_buffer);
-
-							printf("please define flash rate max 60, min 1\n");
-							scanf("%d",&run_tg_flash_temp);
-
-							if(checkisBiggerThanZero_lessThanUpperLimit(run_tg_flash_temp, run_tg_flash_max) == 0 ){
-								printf("herehere here\n");
-								*write_buffer = insertDataIn_7_8(run_tg_flash_temp , write_buffer);
-
-							}else{
-								*write_buffer = returnAllElementsZeroArray(write_buffer);
-							}
-
-						}else{
-							*write_buffer = returnAllElementsZeroArray(write_buffer);
-						}
-
-
+						*write_buffer = *run_tg(write_buffer);
 					}
 					else if(c == '4'){ //led selection
-						int led_selection_temp;
-						printf("In this section you will have 3 LEDs. \n Your input will 1 ,2, 3 or combination of this values.");
-						printf("please define your input.\n");
-						scanf("%d", &led_selection_temp);
-						int totalDigit = findTotalDigitInNumber(led_selection_temp);
-						if(totalDigit > 3){
-							printf("totalDigit %d\n", totalDigit );
-							printf("Wrong Input. Your input value could be have max 3 digits.\n");
-						}else if(totalDigit < 1){
-							printf("Something goes wrong! \n Please define input properly and try again. \n" );
-						}else{
-							* write_buffer = returnAllElementsZeroArray(write_buffer);
-							write_buffer[4] = '0x01'; //LED switch is work
-							write_buffer[1] = '0x00';
-							write_buffer[2] = '0x00';
-							write_buffer[3] = '0x00';
-							write_buffer[8] = '0x00';
-							char buffer[3]; 
-							printf("INSERT\n");
-							sprintf(buffer, "%d", led_selection_temp); 
-
-							for (int i = 0; i < totalDigit ; i++){
-								printf(" %c\n", buffer[i]);
-							}
-
-							for (int i = 0; i < totalDigit ; i++){
-								if(buffer[i] == '1'){
-									write_buffer[5] = '0x01';
-								}
-								else if(buffer[i] == '2'){
-									write_buffer[6] = '0x01';
-								}
-								else if(buffer[i] == '3'){
-									write_buffer[7] = '0x01';
-								}
-							}
-
-
-						}
-						
+						*write_buffer = *led_switch(write_buffer);
 					}
 				}
 				index++;
-			
 			}
 			printf("\n here it comes\n");
 
-			for(int i = 0; i< sizeof(write_buffer) ; i++){
+			for(int i = 0; i< sizeof(write_buffer) ; i++){ //print index numbers
 				printf("%d ", i);
 			}
 			printf("\n");
@@ -358,11 +358,9 @@
 			scanf("%c", &c);
 
 		}
-
 		//printf("\n  %d Bytes written to ttyUSB0", bytes_written);
 		printf("\n  %d Bytes written to ttyUSB0", bytes_written);
 		printf("\n +----------------------------------+\n\n");
 
 		close(fd);/* Close the Serial port */
-
     	}
