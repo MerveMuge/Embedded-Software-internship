@@ -230,6 +230,32 @@ A. /var/log
 
 * General system messages are likely to be found in /var/log/messages or /var/ log/_syslog__ , depending on your distribution.
 
+SECTION 10
 
+* For which type of file is nano least likely to be useful for examining or editing?
+
+-> A LibreOffice word processing document
+
+* Which keystrokes invoke the pico or nano search function? 
+
+-> F6 , Ctrl-W
+
+* How would you remove two lines of text from a file when using vi ?
+
+-> In command mode, position the cursor on the first line and type 2dd.
+
+* Unicode is useful for encoding most European languages but not not Asian languages. ->FALSE
+
+* GUI text editors for ASCII are superior to text-mode ASCII text editors because the GUI editors support underlining, italics, and multiple fonts. -> FALSE
+
+* If you have never used a text editor before, the nano text editor is usually the best one to learn first. -> TRUE
+
+* ASCII supports _128_ unique characters (not including control characters).
+
+* Three keystrokes that can initiate a search-and-replace operation in nano are F14,Ctrl+\ and  Esc+R
+
+* While in vi's command mode, you can type __u_ to undo a change.
+
+* To save a file and exit the vi text editor in command mode, type __ZZ__
 
 
