@@ -108,10 +108,9 @@
 			return totalDigits;
 		}
 
-    	void main(void)
-    	{
-        int fd;/*File Descriptor*/
-		
+		int setUp(){
+
+		int fd;
 		printf("\n +----------------------------------+");
 		printf("\n |        Serial Port Write         |");
 		printf("\n +----------------------------------+");
@@ -161,19 +160,26 @@
                     printf("\n  BaudRate = 115200 \n  StopBits = 1 \n  Parity   = none");
 			
 	        /*------------------------------- Write data to serial port -----------------------------*/
+                return fd;
+		}
+
+
+    	void main(void){
+
+        int fd;/*File Descriptor*/
+    	fd = setUp();
+		
         int size;
     	printf("\n\n please define input array size: ---\n");
     	scanf("%d", &size);
     	
 		char write_buffer[size] ;	/* Buffer containing characters to write into port	     */	
-		
 		int  bytes_written  = 0;  	/* Value for storing the number of bytes written to the port */ 
-
-		bytes_written = write(fd,write_buffer , sizeof(write_buffer));/* use write() to send data to port                                            */
-									     /* "fd"                   - file descriptor pointing to the opened serial port */
-									     /*	"write_buffer"         - address of the buffer containing data	            */
-									     /* "sizeof(write_buffer)" - No of bytes to write                               */	
-		
+		//bytes_written = write(fd,write_buffer , sizeof(write_buffer));/* use write() to send data to port                                            */
+																      /* "fd"                   - file descriptor pointing to the opened serial port */
+																      /*	"write_buffer"         - address of the buffer containing data	            */
+																      /* "sizeof(write_buffer)" - No of bytes to write                               */	
+										
 		int index = -1;
     	char c ;
     	scanf("%c", &c);
@@ -215,7 +221,7 @@
 						int upper_limit_flash = 60;
 						if(checkisBiggerThanZero_lessThanUpperLimit( flash_temp, upper_limit_flash) == 0 ){
 							write_buffer[2] = '0x01';
-							write_buffer[1] = '0x00' ;
+							write_buffer[1] = '0x00';
 							for(int i = 3 ; i < 5 ; i++ ){
 								write_buffer[i] = '0x00';
 							}
