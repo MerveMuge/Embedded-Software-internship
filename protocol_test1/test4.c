@@ -48,6 +48,12 @@
     	#include <errno.h>   /* ERROR Number Definitions           */
 		#include <stdlib.h>
 		#include <string.h>
+		#include <unistd.h>
+
+		void clearScreen(){
+		  const char *CLEAR_SCREEN_ANSI = "\e[1;1H\e[2J";
+		  write(STDOUT_FILENO, CLEAR_SCREEN_ANSI, 12);
+		}
 
 		int checkisBiggerThanZero_lessThanUpperLimit(int temp ,int upper_limit){
 
@@ -300,7 +306,6 @@
 				}
 			}
 			return write_buffer;
-						
 		}
 
     	void main(void){
@@ -330,15 +335,19 @@
 
 				}else{
 					if(c == '1' ) {//PWM
+						clearScreen();
 						*write_buffer = *pwm(write_buffer);
 					}
 					else if( c == '2'){ // flash
+						clearScreen();
 						*write_buffer = *flash(write_buffer);
 					}
 					else if(c == '3'){ // run tg
+						clearScreen();
 						*write_buffer = *run_tg(write_buffer);
 					}
 					else if(c == '4'){ //led selection
+						clearScreen();
 						*write_buffer = *led_switch(write_buffer);
 					}
 				}
