@@ -85,6 +85,29 @@
 			return write_buffer;
 		}
 
+		char * insertDataIn_7_8(int data, char * write_buffer){
+			if(data < 10){
+
+				char character = data + '0';
+				write_buffer[7] = character;
+
+				write_buffer[8] = '0x00';
+				
+			}
+			else{
+			    char buffer[2];
+
+			    printf("INSERT\n");
+				sprintf(buffer, "%d", data);
+
+			    printf(" %c %c \n", buffer[0] ,buffer[1]);
+			    write_buffer[7] = buffer[0];
+			    write_buffer[8] = buffer[1];
+			  
+			}
+			return write_buffer;
+		}
+
 		char * returnAllElementsZeroArray(char * write_buffer){
 			for(int i = 0; i < sizeof(write_buffer) ; i++){
 				write_buffer[i] = '0x00';
@@ -163,6 +186,47 @@
                 return fd;
 		}
 
+		char * pwm(char *  write_buffer){
+			int pwm_temp;
+
+			printf("please define pwm rate from 0 to 10\n");
+			scanf("%d", &pwm_temp);
+			int upper_limit =10;
+
+			if(checkisBiggerThanZero_lessThanUpperLimit(pwm_temp, upper_limit) == 0 ){
+				write_buffer[1] = '0x01';
+				for(int i = 2 ; i < 5 ; i++ ){
+					write_buffer[i] = '0x00';
+				}
+				*write_buffer = insertDataIn_5_6(pwm_temp, write_buffer);
+			}else{
+				*write_buffer = returnAllElementsZeroArray(write_buffer);
+			}
+
+			return write_buffer;
+
+		}
+
+		char * flash(char * write_buffer){
+			int flash_temp;
+
+			printf("please define flash rate from 1 to 60\n");
+			scanf("%d", &flash_temp);
+			int upper_limit_flash = 60;
+			if(checkisBiggerThanZero_lessThanUpperLimit( flash_temp, upper_limit_flash) == 0 ){
+				write_buffer[2] = '0x01';
+				write_buffer[1] = '0x00';
+			for(int i = 3 ; i < 5 ; i++ ){
+				write_buffer[i] = '0x00';
+			}
+							
+			*write_buffer = insertDataIn_5_6(flash_temp, write_buffer);
+			}else{
+				*write_buffer = returnAllElementsZeroArray(write_buffer);
+			}
+			return write_buffer;
+		}
+
 
     	void main(void){
 
@@ -183,8 +247,6 @@
 		int index = -1;
     	char c ;
     	scanf("%c", &c);
-    	int pwm_temp;
-    	int flash_temp;
 
 		while(c != 'q'){ // stop bit
 
@@ -196,41 +258,10 @@
 
 				}else{
 					if(c == '1' ) {//PWM
-
-						printf("please define pwm rate from 0 to 10\n");
-						scanf("%d", &pwm_temp);
-						int upper_limit =10;
-
-						if(checkisBiggerThanZero_lessThanUpperLimit(pwm_temp, upper_limit) == 0 ){
-							write_buffer[1] = '0x01';
-							for(int i = 2 ; i < 5 ; i++ ){
-								write_buffer[i] = '0x00';
-							}
-							//write_buffer = insertDataIn_5_6(pwm_temp);
-							*write_buffer = insertDataIn_5_6(pwm_temp, write_buffer);
-						}
-						else{
-							*write_buffer = returnAllElementsZeroArray(write_buffer);
-						}
-
+						*write_buffer = pwm(write_buffer);
 					}
 					else if( c == '2'){ // flash
-
-						printf("please define flash rate from 1 to 60\n");
-						scanf("%d", &flash_temp);
-						int upper_limit_flash = 60;
-						if(checkisBiggerThanZero_lessThanUpperLimit( flash_temp, upper_limit_flash) == 0 ){
-							write_buffer[2] = '0x01';
-							write_buffer[1] = '0x00';
-							for(int i = 3 ; i < 5 ; i++ ){
-								write_buffer[i] = '0x00';
-							}
-							//write_buffer = insertDataIn_5_6(flash_temp);
-							*write_buffer = insertDataIn_5_6(flash_temp, write_buffer);
-						}else{
-							*write_buffer = returnAllElementsZeroArray(write_buffer);
-						}
-
+						*write_buffer = flash(write_buffer);
 					}
 					else if(c == '3'){ // run tg
 						int run_tg_pwm_temp;
@@ -243,10 +274,10 @@
 						int run_tg_flash_max = 60; 
 
 						if(checkisBiggerThanZero_lessThanUpperLimit( run_tg_pwm_temp, run_tg_pwm_max) == 0 ){
-							printf("hello from here!!!!!!!!!!\n");
+							
 							write_buffer[1] = '0x00';
 							write_buffer[2] = '0x00';
-							write_buffer[3] = '0x01';
+							write_buffer[3] = '0x01'; // run tg is working
 							write_buffer[4] = '0x00';
 							*write_buffer = insertDataIn_5_6(run_tg_pwm_temp, write_buffer);
 
@@ -254,55 +285,8 @@
 							scanf("%d",&run_tg_flash_temp);
 
 							if(checkisBiggerThanZero_lessThanUpperLimit(run_tg_flash_temp, run_tg_flash_max) == 0 ){
-								printf("hello there!\n");
-								if(run_tg_pwm_temp < 10 ){
-									//data index start in 6.index
-									if(run_tg_flash_temp < 10){
-
-										char character = run_tg_flash_temp + '0';
-										write_buffer[6] = character;
-
-										for (int i = 7; i < 9; i++){
-											write_buffer[i] = '0x00';
-										}
-									}
-									else if( run_tg_flash_temp > 10){
-
-											char buffer[2];
-
-										    printf("INSERT\n");
-											sprintf(buffer, "%d", run_tg_flash_temp);
-
-										    printf(" %c %c \n", buffer[0] ,buffer[1]);
-										    write_buffer[6] = buffer[0];
-										    write_buffer[7] = buffer[1];
-										    write_buffer[8] = '0x00';
-									}
-
-								}else if(run_tg_pwm_temp == 10){
-									//data index start in 7.index
-									if(run_tg_flash_temp < 10){
-
-										char character = run_tg_flash_temp + '0';
-										write_buffer[7] = character;
-
-										write_buffer[8] = '0x00';
-										
-									}
-									else if( run_tg_flash_temp > 10){
-
-											char buffer[2];
-
-										    printf("INSERT\n");
-											sprintf(buffer, "%d", run_tg_flash_temp);
-
-										    printf(" %c %c \n", buffer[0] ,buffer[1]);
-										    write_buffer[7] = buffer[0];
-										    write_buffer[8] = buffer[1];
-										    
-									}
-
-								}
+								printf("herehere here\n");
+								*write_buffer = insertDataIn_7_8(run_tg_flash_temp , write_buffer);
 
 							}else{
 								*write_buffer = returnAllElementsZeroArray(write_buffer);
@@ -336,24 +320,19 @@
 							printf("INSERT\n");
 							sprintf(buffer, "%d", led_selection_temp); 
 
-							for (int i = 0; i < totalDigit ; i++)
-							{
+							for (int i = 0; i < totalDigit ; i++){
 								printf(" %c\n", buffer[i]);
 							}
 
-							for (int i = 0; i < totalDigit ; i++)
-							{
+							for (int i = 0; i < totalDigit ; i++){
 								if(buffer[i] == '1'){
-									printf("first\n");
-									write_buffer[5] = '1';
+									write_buffer[5] = '0x01';
 								}
 								else if(buffer[i] == '2'){
-									printf("second\n");
-									write_buffer[6] = '1';
+									write_buffer[6] = '0x01';
 								}
 								else if(buffer[i] == '3'){
-									printf("third\n");
-									write_buffer[7] = '1';
+									write_buffer[7] = '0x01';
 								}
 							}
 
