@@ -25,18 +25,22 @@ void loop() {
   if (Serial.available()){
     incomingValue = Serial.read();
     c_temp = incomingValue;
-    
+    Serial.print(c_temp);
     if(c_temp == '*'){
       index_counter = 0;
       data[index_counter] = c_temp;
-      Serial.print(c_temp);
+      //Serial.print(c_temp);
       index_counter++;
     }else{
-      index_counter++;
       data[index_counter] = c_temp;
+      
+      if((index_counter == 1) && (c_temp == '1')){
+        digitalWrite(led, HIGH);
+      }
+      index_counter++;
     }
     
-    Serial.print(c_temp);
+    
     
   }
   
