@@ -69,11 +69,13 @@
 		char * insertDataIn_5_6(int data, char * write_buffer){
 			if(data < 10){
 
+				write_buffer[5] = '0';
 				char character = data + '0';
-				write_buffer[5] = character;
+				write_buffer[6] = character;
 
-				for (int i = 6; i < 9; i++){
-					write_buffer[i] = '0x00';
+
+				for (int i = 7; i < 9; i++){
+					write_buffer[i] = '0';
 				}
 			}
 			else{
@@ -83,8 +85,8 @@
 
 			    write_buffer[5] = buffer[0];
 			    write_buffer[6] = buffer[1];
-			    write_buffer[7] = '0x00';
-			    write_buffer[8] = '0x00';
+			    write_buffer[7] = '0';
+			    write_buffer[8] = '0';
 			}
 			return write_buffer;
 		}
@@ -92,10 +94,10 @@
 		char * insertDataIn_7_8(int data, char * write_buffer){
 			if(data < 10){
 
-				char character = data + '0';
-				write_buffer[7] = character;
+				write_buffer[7] = '0';
 
-				write_buffer[8] = '0x00';
+				char character = data + '0';
+				write_buffer[8] = character;
 				
 			}
 			else{
@@ -110,8 +112,10 @@
 		}
 
 		char * returnAllElementsZeroArray(char * write_buffer){
-			for(int i = 0; i < sizeof(write_buffer) ; i++){
-				write_buffer[i] = '0x00';
+
+			write_buffer[0] = '*';
+			for(int i = 1; i < sizeof(write_buffer) ; i++){
+				write_buffer[i] = '0';
 			}
 				return write_buffer;
 		}
@@ -189,9 +193,9 @@
 			int upper_limit =10;
 
 			if(checkisBiggerThanZero_lessThanUpperLimit(pwm_temp, upper_limit) == 0 ){
-				write_buffer[1] = '0x01';
+				write_buffer[1] = '1';
 				for(int i = 2 ; i < 5 ; i++ ){
-					write_buffer[i] = '0x00';
+					write_buffer[i] = '0';
 				}
 				*write_buffer = *insertDataIn_5_6(pwm_temp, write_buffer);
 			}else{
@@ -208,10 +212,10 @@
 			scanf("%d", &flash_temp);
 			int upper_limit_flash = 60;
 			if(checkisBiggerThanZero_lessThanUpperLimit( flash_temp, upper_limit_flash) == 0 ){
-				write_buffer[2] = '0x01';
-				write_buffer[1] = '0x00';
+				write_buffer[2] = '1';
+				write_buffer[1] = '0';
 			for(int i = 3 ; i < 5 ; i++ ){
-				write_buffer[i] = '0x00';
+				write_buffer[i] = '0';
 			}
 							
 			*write_buffer = *insertDataIn_5_6(flash_temp, write_buffer);
@@ -233,10 +237,10 @@
 
 			if(checkisBiggerThanZero_lessThanUpperLimit( run_tg_pwm_temp, run_tg_pwm_max) == 0 ){
 							
-				write_buffer[1] = '0x00';
-				write_buffer[2] = '0x00';
-				write_buffer[3] = '0x01'; // run tg is working
-				write_buffer[4] = '0x00';
+				write_buffer[1] = '0';
+				write_buffer[2] = '0';
+				write_buffer[3] = '1'; // run tg is working
+				write_buffer[4] = '0';
 				*write_buffer = *insertDataIn_5_6(run_tg_pwm_temp, write_buffer);
 
 				printf("please define flash rate max 60, min 1\n");
@@ -269,23 +273,23 @@
 			}else{
 				*write_buffer = *returnAllElementsZeroArray(write_buffer);
 
-				write_buffer[4] = '0x01'; //LED switch is work
-				write_buffer[1] = '0x00';
-				write_buffer[2] = '0x00';
-				write_buffer[3] = '0x00';
-				write_buffer[8] = '0x00';
+				write_buffer[4] = '1'; //LED switch is work
+				write_buffer[1] = '0';
+				write_buffer[2] = '0';
+				write_buffer[3] = '0';
+				write_buffer[8] = '0';
 				char buffer[3]; 
 				sprintf(buffer, "%d", led_selection_temp); 
 
 				for (int i = 0; i < totalDigit ; i++){
 					if(buffer[i] == '1'){
-						write_buffer[5] = '0x01';
+						write_buffer[5] = '1';
 					}
 					else if(buffer[i] == '2'){
-						write_buffer[6] = '0x01';
+						write_buffer[6] = '1';
 					}
 					else if(buffer[i] == '3'){
-						write_buffer[7] = '0x01';
+						write_buffer[7] = '1';
 					}
 				}
 			}
@@ -311,13 +315,14 @@
 		int index = -1;
     	char c ;
     	scanf("%c", &c);
+    	* write_buffer = * returnAllElementsZeroArray(write_buffer);
 
 		while(c != 'q'){ // stop bit
 			odd++;
 
 			if( c != '\0') {
 				if(index == 0){
-					write_buffer[0] = '0x00';
+					write_buffer[0] = '*';
 
 				}else{
 					if(c == '1' ) {//PWM
@@ -336,6 +341,9 @@
 						clearScreen();
 						*write_buffer = *led_switch(write_buffer);
 					}
+			
+					bytes_written = write(fd,write_buffer , sizeof(write_buffer));
+			
 				}
 				index++;
 
@@ -354,7 +362,7 @@
 				}
 			}
 
-			bytes_written = write(fd,write_buffer , sizeof(write_buffer));
+		//	bytes_written = write(fd,write_buffer , sizeof(write_buffer));
 			scanf("%c", &c);
 
 		}
