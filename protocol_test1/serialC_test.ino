@@ -41,29 +41,6 @@ void pwm(char data[]) {
   }
 }
 
-int flash_break( char flash_temp ) {
-
-  if ( (flash_temp == '1') || (flash_temp == '2') || (flash_temp == '3') || (flash_temp == '4') ) {
-    Serial.print("flash term is here: ");
-    Serial.println(flash_temp);
-    return 1;
-  } else {
-    return 0;
-  }
-}
-
-int listener( char flash_temp ) {
-
-  if ( flash_break(flash_temp) == 1 ) {
-    //set period = -1;
-    Serial.println("first");
-    //data[2] = '0';
-    return -1;
-  } else {
-    return 1;
-  }
-}
-
 void flash(char data[]) {
 
   char flash_temp;
@@ -84,7 +61,8 @@ void flash(char data[]) {
   while (period > 0) {
 
     unsigned long time_now = millis();
-    Serial.println("period check while");
+    Serial.println("period check while ");
+    Serial.print(period);
 
     while ( (millis() < time_now + (period * 1000)) && ( period > 0) ) {
 
@@ -93,33 +71,28 @@ void flash(char data[]) {
         flash_temp = Serial.read();
 
         if (flash_temp == '1') {
-          Serial.println("here!");
+          Serial.println("pwm from flash ! ");
           period =0;
           pwm(data);
           period =0;
-          break;
-
-          /*if (Serial.available()) {
-
-            Serial.println("hello!");
-            char flash_temp = Serial.read();
-            Serial.print(flash_temp);
-
-            int temp = flash_temp - '0';
+          /*if(Serial.available()){
+            char temp_c = Serial.read();
+            Serial.println("readed");
+            int temp= temp_c - '0';
             write(temp);
-            period = -1;
-            data[2] = '0';
-            break;
-          } 
-        }else if(flash_temp == '2'){
-          
-        }*/
+          }*/
+          break;
        
         }
         /*else if(flash_temp = '2'){
+          Serial.println("flash from flash");
           flash(data);
-        }*/else if(flash_temp = '3'){
+          break;
+        }*/
+        else if(flash_temp = '3'){
+          Serial.println("run tg from flash");
           run_tg(data);
+          break;
         }
       }
 
@@ -129,9 +102,6 @@ void flash(char data[]) {
     digitalWrite(led, LOW);
 
   }
-  /*Serial.println("period is here ");
-    Serial.print(data[2]);
-    data[2] = '0';*/
 }
 
 void run_tg(char data[]) {
@@ -161,22 +131,22 @@ void run_tg(char data[]) {
         run_tg_temp = Serial.read();
 
         if (run_tg_temp == '1') { //call pwm
-          /*if (Serial.available()) {
-            run_tg_temp = Serial.read();
-
-            int temp = run_tg_temp - '0';
-            write(temp);
-            period = -1;
-            break;
-          }*/
-          Serial.println("here!");
+          
+          Serial.println("here run tg!");
           pwm(data);
           Serial.println("after pwm");
           period = 0;
-          Serial.println("after period");
+          Serial.println("after period ");
+          Serial.print(period);
           break;
-          Serial.println("after break");
         }
+        else if(run_tg_temp == '2'){
+          Serial.println("called flash from run tg ");
+          flash(data);
+        }/*
+        else if(run_tg_temp == '3'){
+          Serial.println("run tg from run tg");
+        }*/
 
       }
 
@@ -185,9 +155,6 @@ void run_tg(char data[]) {
     //digitalWrite(led, HIGH);
     write(pwm_value);
     delay(1000);
-    /*unsigned long time_now_high = millis();
-      while ( (millis() < time_now_high + 3000) ) {
-    } */
     digitalWrite(led, LOW);
 
   }
@@ -197,13 +164,9 @@ void run_tg(char data[]) {
 void loop() {
 
   if (Serial.available()) {
+    
     incomingValue = Serial.read();
-    /* while (Serial.available() > 0) {
-       char t = Serial.read();
-       Serial.print(t);
-      }*/
     c_temp = incomingValue;
-    //Serial.print(c_temp);
 
     if (c_temp == '*') { //start bit
 
@@ -223,9 +186,7 @@ void loop() {
       else if (data[3] == '1') { // run tg
         run_tg(data);
       }
-      /* for(int i = 0; i< 9; i++){
-         data[i] = '0';
-        }*/
+
       index_counter++;
     }
   }
