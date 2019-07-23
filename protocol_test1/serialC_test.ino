@@ -73,6 +73,83 @@ void flash(char data[]) {
   int fifth_index = data[6] - '0';
 
   int period = (fourth_index * 10) + fifth_index;
+    Serial.println("----");
+    Serial.print(fourth_index);
+    Serial.print(" ");
+    Serial.print(fifth_index);
+    Serial.println("period is here : ");
+    Serial.print(period);
+
+
+  while (period > 0) {
+
+    unsigned long time_now = millis();
+    Serial.println("period check while");
+
+    while ( (millis() < time_now + (period * 1000)) && ( period > 0) ) {
+
+      if (Serial.available()) {
+
+        flash_temp = Serial.read();
+
+        if (flash_temp == '1') {
+          Serial.println("here!");
+          period =0;
+          pwm(data);
+          period =0;
+          break;
+
+          /*if (Serial.available()) {
+
+            Serial.println("hello!");
+            char flash_temp = Serial.read();
+            Serial.print(flash_temp);
+
+            int temp = flash_temp - '0';
+            write(temp);
+            period = -1;
+            data[2] = '0';
+            break;
+          } 
+        }else if(flash_temp == '2'){
+          
+        }*/
+       
+        }
+        /*else if(flash_temp = '2'){
+          flash(data);
+        }*/else if(flash_temp = '3'){
+          run_tg(data);
+        }
+      }
+
+    }
+    digitalWrite(led, HIGH);
+    delay(1000);
+    digitalWrite(led, LOW);
+
+  }
+  /*Serial.println("period is here ");
+    Serial.print(data[2]);
+    data[2] = '0';*/
+}
+
+void run_tg(char data[]) {
+
+  char run_tg_temp;
+  write(0);
+  int fifth_index = data[5] - '0';
+  int sixth_index = data[6] - '0';
+  int pwm_value = (fifth_index * 10) + sixth_index;
+  Serial.print("here1 ");
+  Serial.println(pwm_value);
+
+  int seventh_index = data[7] - '0';
+  int eighth_index = data[8] - '0';
+  int period = (seventh_index * 10) + eighth_index;
+  Serial.print("here2 ");
+  Serial.println(period);
+
 
   while (period > 0) {
 
@@ -81,67 +158,38 @@ void flash(char data[]) {
     while ( (millis() < time_now + (period * 1000)) && ( period > 0) ) {
 
       if (Serial.available()) {
-        flash_temp = Serial.read();
+        run_tg_temp = Serial.read();
 
-        if (flash_temp != 0) {
-          Serial.println("nonEmpty");
-        }
+        if (run_tg_temp == '1') { //call pwm
+          /*if (Serial.available()) {
+            run_tg_temp = Serial.read();
 
-        if (flash_temp == '1') {
-          Serial.println("here!");
-
-          if (Serial.available()) {
-
-            Serial.println("hello!");
-            flash_temp = Serial.read();
-
-            int temp = flash_temp - '0';
+            int temp = run_tg_temp - '0';
             write(temp);
             period = -1;
             break;
-          }
+          }*/
+          Serial.println("here!");
+          pwm(data);
+          Serial.println("after pwm");
+          period = 0;
+          Serial.println("after period");
+          break;
+          Serial.println("after break");
         }
+
       }
 
     }
 
-    digitalWrite(led, HIGH);
+    //digitalWrite(led, HIGH);
+    write(pwm_value);
     delay(1000);
     /*unsigned long time_now_high = millis();
       while ( (millis() < time_now_high + 3000) ) {
-      } */   
+    } */
     digitalWrite(led, LOW);
 
-  }
-  /*Serial.println("period is here ");
-  Serial.print(data[2]);
-  data[2] = '0';*/
-}
-
-void run_tg(char data[]) {
-
-  write(0);
-  int fifth_index = data[5] - '0';
-  int sixth_index = data[6] - '0';
-  int pwm = (fifth_index * 10) + sixth_index;
-  Serial.print("here1 ");
-  Serial.println(pwm);
-
-  int seventh_index = data[7] - '0';
-  int eighth_index = data[8] - '0';
-  int period = (seventh_index * 10) + eighth_index;
-  Serial.print("here2 ");
-  Serial.println(period);
-
-  while (period > 0) {
-
-    unsigned long time_now = millis();
-    while (millis() < time_now + (period * 1000)) {
-
-    }
-    write(pwm);
-    delay(1000);
-    digitalWrite(led, LOW);
   }
 
 }
@@ -171,7 +219,6 @@ void loop() {
       }
       else if (data[2] == '1') { //flash
         flash(data);
-        //data[2] = flash(data);
       }
       else if (data[3] == '1') { // run tg
         run_tg(data);
