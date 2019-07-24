@@ -108,19 +108,27 @@ char * select_menu_item_and_insert_array(char c_menu, char* write_buffer){
 	else if(c_menu == '4'){	
 		write_buffer[1] = '4';
 	}
-
 	return write_buffer;
 }
 
-void request_pwm_info(){
-	char request_temp;
+char * request_pwm_info(char * request_temp){
+	//char request_temp[2];
 	clearScreen();
 	printf("Your input should be in the 0-10 range.\n");
   	printf("This input could help adjust the Led' brightness rate.\n");
   	printf("ps. 10 for 100%% rate and 0 for 0%%. \n");
-	scanf("%c", &request_temp);
+	scanf("%s", request_temp);
 
+	return request_temp;
+	//printf("here request %s\n", request_temp);
+	//printf("%c %c\n", request_temp[0], request_temp[1] );
+}
 
+char * upload_pwm_data(char * write_buffer , char * request_temp){
+
+	write_buffer[5] = request_temp[0];
+	write_buffer[6] = request_temp[1];
+	return write_buffer;
 }
 
 void request_flash_info(){
@@ -148,9 +156,16 @@ void request_led_switch_info(){
 }
 
 char * request_data(char * write_buffer){
+	char request_temp[2];
 
 	if(write_buffer[1] == '1'){
-		request_pwm_info();
+		
+		//request_pwm_info(request_temp);
+		//temp[0] = request_pwm_info()[0];
+		//temp[1] = request_pwm_info()[1];
+		//request_pwm_info();
+		upload_pwm_data(write_buffer, request_pwm_info(request_temp) );
+		//upload_pwm_data(write_buffer, temp);
 	}else if(write_buffer[1] == '2'){
 		request_flash_info();
 	}else if(write_buffer[1] == '3'){
@@ -171,7 +186,7 @@ void main( int argc, char **argv ) {
 	char write_buffer[10]; //data array
 
 	for(int i = 0; i < 10 ; i++){
-		write_buffer[i] = 0;
+		write_buffer[i] = '0';
 	}
 
 	bool isStarted = false;
@@ -210,9 +225,7 @@ void main( int argc, char **argv ) {
 			}else if(isStarted){
 				write_buffer[index++] = c_temp;
 			}
-
 		}
-		
 	}*/
 
 }
