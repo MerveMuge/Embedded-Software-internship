@@ -84,10 +84,6 @@ char menu_page(){
   	char c_menu;
   	scanf("%c" , &c_menu);
 
-  	/*if( ! ((c_menu == '1') || (c_menu == '2') || (c_menu == '3') || (c_menu == '4') )){
-  		c_menu = 0;
-  		menu_page();
-  	}*/
   	printf("--%c\n", c_menu);
   	return c_menu;
 }
@@ -112,7 +108,6 @@ char * select_menu_item_and_insert_array(char c_menu, char* write_buffer){
 }
 
 char * request_pwm_info(char * request_temp){
-	//char request_temp[2];
 	clearScreen();
 	printf("Your input should be in the 0-10 range.\n");
   	printf("This input could help adjust the Led' brightness rate.\n");
@@ -120,54 +115,100 @@ char * request_pwm_info(char * request_temp){
 	scanf("%s", request_temp);
 
 	return request_temp;
-	//printf("here request %s\n", request_temp);
-	//printf("%c %c\n", request_temp[0], request_temp[1] );
 }
 
 char * upload_pwm_data(char * write_buffer , char * request_temp){
 
+	int second_digit = request_temp[0] - '0';
+	int first_digit = request_temp[1] - '0';
+	int input_value = ( (second_digit * 10) + first_digit);
+
+	if(  input_value == 10 ){
 	write_buffer[5] = request_temp[0];
 	write_buffer[6] = request_temp[1];
+	}else if( (input_value < 10) ){
+		write_buffer[5] = '0';
+		write_buffer[6] = request_temp[0];
+	}else{
+		printf("Wrong Input\n");
+		write_buffer[1] = '0';
+	}
+
 	return write_buffer;
 }
 
-void request_flash_info(){
-	char request_temp;
+char * request_flash_info(char * request_temp){
 	clearScreen();
 	printf("Your input would be a flash loop time.\n");
   	printf("ps. if input is 2, the flash period is 2\n");
-  	scanf("%c", &request_temp);
+  	scanf("%s", request_temp);
+
+  	return request_temp;
 }
 
-void rerquest_run_tg_info(){
-	char request_temp;
+char * upload_flash_info(char * write_buffer , char * request_temp){
+
+	int second_digit = request_temp[0] - '0';
+	int first_digit = request_temp[1] - '0';
+	int input_value = ( (second_digit * 10) + first_digit );
+
+	if(input_value < 10){
+		write_buffer[7] = '0';
+		write_buffer[8] = request_temp[0];
+	}else if(input_value <= 60 ){
+		write_buffer[7] = request_temp[0];
+		write_buffer[8] = request_temp[1];
+	}else{
+		printf("Wrong Input\n");
+		write_buffer[1] = '0';
+	}
+	return write_buffer;
+}
+
+
+char * rerquest_run_tg_info(char * request_temp){
 	clearScreen();
   	printf("In this option you should define pwm and flash rate\n");
   	printf("First, define pwm rate. (0 - 10)\n");
   	printf("Second, define flash rate.\n");
-  	scanf("%c", &request_temp);
+  	scanf("%s", request_temp);
+
+  	return request_temp;
 }
 
-void request_led_switch_info(){
-	char request_temp;
+char * upload_run_tg_info( char * write_buffer , char * request_temp ){
+	
+	int second_digit = request_temp[0] - '0';
+	int first_digit = request_temp[1] - '0';
+	int input_value = ( (second_digit * 10) + first_digit );
+
+}
+
+char * request_led_switch_info(char * request_temp){
+	
 	clearScreen();
   	printf("There are 3 led which are numbers; 1,2,3. Select one of them or combinations.\n");
-  	scanf("%c", &request_temp);
+  	scanf("%s", request_temp);
+
+  	return request_temp;
 }
 
 char * request_data(char * write_buffer){
 	char request_temp[2];
+	request_temp[0] = '0';
+	request_temp[1] = '0';
+
+	char request_temp_run_tg[4];
+	for(int i = 0 ; i < 4 ; i++){
+		request_temp_run_tg[i] = '0';
+	}
 
 	if(write_buffer[1] == '1'){
-		
-		//request_pwm_info(request_temp);
-		//temp[0] = request_pwm_info()[0];
-		//temp[1] = request_pwm_info()[1];
-		//request_pwm_info();
 		upload_pwm_data(write_buffer, request_pwm_info(request_temp) );
-		//upload_pwm_data(write_buffer, temp);
+		
 	}else if(write_buffer[1] == '2'){
-		request_flash_info();
+		upload_flash_info(write_buffer, request_flash_info(request_temp) );
+		//request_flash_info();
 	}else if(write_buffer[1] == '3'){
 		rerquest_run_tg_info();
 	}else if(write_buffer[1] == '4'){
