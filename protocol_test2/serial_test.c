@@ -83,9 +83,11 @@ char menu_page(){
 
   	char c_menu;
   	scanf("%c" , &c_menu);
+  	if((c_menu != '\n') && (c_menu != '\t') && (c_menu != '\r')){
+  		
+  		return c_menu;
+  	}
 
-  	//printf("--%c\n", c_menu);
-  	return c_menu;
 }
 
 char * select_menu_item_and_insert_array(char c_menu, char* write_buffer){
@@ -112,9 +114,9 @@ char * is_one_digit_or_more(char * request_temp ,char * result_array, int max_va
 	int second_digit = request_temp[0] - '0';
 	int first_digit = request_temp[1] - '0';
 	int input_value = ( (second_digit * 10) + first_digit );
-	printf("input value is %d\n", input_value );
+	//printf("input value is %d\n", input_value );
 
-	if(first_digit < 0){ // if input is have unique digit 
+	if(first_digit < 0){ // if input have unique digit 
 		result_array[0] = '0';
 		result_array[1] = request_temp[0];
 	}
@@ -213,26 +215,36 @@ char * upload_run_tg_info( char * write_buffer , char * request_run_tg ){
 	return write_buffer;
 }
 
-char * request_led_switch_info(char * request_temp){
+char * request_led_switch_info(char * request_led_selection){
 	
 	clearScreen();
   	printf("There are 3 led which are numbers; 1,2,3. Select one of them or combinations.\n");
-  	scanf("%s", request_temp);
+  	scanf("%s", request_led_selection);
 
-  	return request_temp;
+  	return request_led_selection;
+}
+
+char * upload_led_switch_info(char * write_buffer, char * request_led_selection){
+
+	for(int i = 0 ; i < 3; i++ ){
+
+		if(request_led_selection[i] == '1'){
+			write_buffer[2] = '1';
+		}else if(request_led_selection[i] == '2'){
+			write_buffer[3] = '1';
+		}else if(request_led_selection[i] == '3'){
+			write_buffer[4] = '1';
+		}
+	}
+	return write_buffer;
 }
 
 char * request_data(char * write_buffer){
+	
 	char request_temp[2];
-	request_temp[0] = '0';
-	request_temp[1] = '0';
-
 	char request_run_tg[4];
+	char request_led_selection[3];
 
-	char request_temp_run_tg[4];
-	for(int i = 0 ; i < 4 ; i++){
-		request_temp_run_tg[i] = '0';
-	}
 
 	if(write_buffer[1] == '1'){
 		upload_pwm_data(write_buffer, request_pwm_info(request_temp) );
@@ -244,8 +256,9 @@ char * request_data(char * write_buffer){
 		upload_run_tg_info(write_buffer, request_run_tg_info(request_run_tg) );
 
 	}else if(write_buffer[1] == '4'){
-		//request_led_switch_info();
+		upload_led_switch_info(write_buffer, request_led_switch_info(request_led_selection) );
 	}
+	write_buffer[9] = '&';
 	return write_buffer;
 
 }
@@ -255,50 +268,41 @@ void main( int argc, char **argv ) {
 
 	int fd;/*File Descriptor*/
 	fd = setUp(argv[1]);
+	int  bytes_written  = 0;  	/* Value for storing the number of bytes written to the port */ 
 
-	char write_buffer[10]; //data array
+	while(1){
 
-	for(int i = 0; i < 10 ; i++){
-		write_buffer[i] = '0';
-	}
+		char write_buffer[10]; //data array
 
-	bool isStarted = false;
-	int index = 0;
-
-	* write_buffer = * select_menu_item_and_insert_array(menu_page(), write_buffer);
-	* write_buffer = * request_data(write_buffer);
-
-	printf("here\n");
-	for(int i = 0; i < 10 ; i++) {
-		printf("%c\n",write_buffer[i]);
-	}
-
-	//menu_page();
-	/*while(1){
-		char c_temp;
-		scanf("%c", &c_temp);		
-		if( c_temp == 'q'){
-			break;
-		 }
-		else if( (c_temp != '\n') && (c_temp != '\t') && (c_temp != '\r') ){ //check escape sequences
-			if( (index == 0) && (!isStarted) ){
-				write_buffer[index++] = '*';
-				write_buffer[index++] = c_temp;
-				isStarted = true;
-			}else if( (index == 8) && (isStarted) ){
-				write_buffer[index++] = c_temp;
-				write_buffer[index] = '&';
-				index = 0;
-				isStarted = false;
-				//process
-				for(int i = 0; i < 10 ; i++){
-					printf("%c \n", write_buffer[i]);
-				}
-				//process
-			}else if(isStarted){
-				write_buffer[index++] = c_temp;
-			}
+		for(int i = 0; i < 10 ; i++){
+			write_buffer[i] = '0';
 		}
-	}*/
+		
+		* write_buffer = * select_menu_item_and_insert_array(menu_page(), write_buffer);
+		
+		* write_buffer = * request_data(write_buffer);
 
+		bytes_written = write(fd,write_buffer , sizeof(write_buffer));
+
+		if(bytes_written < 0){
+			close(fd);/* Close the Serial port */
+			break;
+		}
+		
+		printf("\n  %d Bytes written to ttyUSB0", bytes_written);
+		printf("\n +----------------------------------+\n\n");
+			
+		for(int i = 0; i < 10 ; i++) {
+			printf("%c\n",write_buffer[i]);
+		}
+
+		//ignore enter tab
+  		char tab;
+  		scanf("%c" , &tab);
+
+		bytes_written = 0;
+
+	}
+	close(fd);/* Close the Serial port */
+	
 }
