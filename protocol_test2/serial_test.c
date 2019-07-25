@@ -84,7 +84,7 @@ char menu_page(){
   	char c_menu;
   	scanf("%c" , &c_menu);
 
-  	printf("--%c\n", c_menu);
+  	//printf("--%c\n", c_menu);
   	return c_menu;
 }
 
@@ -107,6 +107,29 @@ char * select_menu_item_and_insert_array(char c_menu, char* write_buffer){
 	return write_buffer;
 }
 
+char * is_one_digit_or_more(char * request_temp ,char * result_array, int max_value){
+
+	int second_digit = request_temp[0] - '0';
+	int first_digit = request_temp[1] - '0';
+	int input_value = ( (second_digit * 10) + first_digit );
+	printf("input value is %d\n", input_value );
+
+	if(first_digit < 0){ // if input is have unique digit 
+		result_array[0] = '0';
+		result_array[1] = request_temp[0];
+	}
+	else if( input_value <= max_value ){
+		result_array[0] = request_temp[0];
+		result_array[1] = request_temp[1];		
+	}else{
+		printf("Wrong input\n");
+		result_array[0] = '0';
+		result_array[1] = '0';
+	}	
+
+	return result_array;
+}
+
 char * request_pwm_info(char * request_temp){
 	clearScreen();
 	printf("Your input should be in the 0-10 range.\n");
@@ -119,20 +142,14 @@ char * request_pwm_info(char * request_temp){
 
 char * upload_pwm_data(char * write_buffer , char * request_temp){
 
+	char result_array[2];
 	int second_digit = request_temp[0] - '0';
 	int first_digit = request_temp[1] - '0';
 	int input_value = ( (second_digit * 10) + first_digit);
 
-	if(  input_value == 10 ){
-	write_buffer[5] = request_temp[0];
-	write_buffer[6] = request_temp[1];
-	}else if( (input_value < 10) ){
-		write_buffer[5] = '0';
-		write_buffer[6] = request_temp[0];
-	}else{
-		printf("Wrong Input\n");
-		write_buffer[1] = '0';
-	}
+	* result_array = * is_one_digit_or_more( request_temp , result_array , 10);
+	write_buffer[5] = result_array[0];
+	write_buffer[6] = result_array[1];
 
 	return write_buffer;
 }
@@ -148,40 +165,52 @@ char * request_flash_info(char * request_temp){
 
 char * upload_flash_info(char * write_buffer , char * request_temp){
 
+	char result_array[2];
 	int second_digit = request_temp[0] - '0';
 	int first_digit = request_temp[1] - '0';
 	int input_value = ( (second_digit * 10) + first_digit );
 
-	if(input_value < 10){
-		write_buffer[7] = '0';
-		write_buffer[8] = request_temp[0];
-	}else if(input_value <= 60 ){
-		write_buffer[7] = request_temp[0];
-		write_buffer[8] = request_temp[1];
-	}else{
-		printf("Wrong Input\n");
-		write_buffer[1] = '0';
-	}
+	* result_array =  * is_one_digit_or_more(request_temp , result_array , 60);
+	write_buffer[7] = result_array[0];
+	write_buffer[8] = result_array[1];
+
 	return write_buffer;
 }
 
 
-char * rerquest_run_tg_info(char * request_temp){
+char * request_run_tg_info(char * request_run_tg ){
 	clearScreen();
+	char request_temp[2];
+	char result_array[2];
   	printf("In this option you should define pwm and flash rate\n");
   	printf("First, define pwm rate. (0 - 10)\n");
+
+  	scanf("%s", request_temp);
+  	* result_array = * is_one_digit_or_more(request_temp , result_array , 10);
+
+  	request_run_tg[0] = result_array[0];
+  	request_run_tg[1] = result_array[1];
+
+  	clearScreen();
   	printf("Second, define flash rate.\n");
   	scanf("%s", request_temp);
+  	* result_array = * is_one_digit_or_more(request_temp, result_array ,60);
 
-  	return request_temp;
+  	request_run_tg[2] = result_array[0];
+  	request_run_tg[3] = result_array[1];
+  	clearScreen();
+
+  	return request_run_tg;
 }
 
-char * upload_run_tg_info( char * write_buffer , char * request_temp ){
+char * upload_run_tg_info( char * write_buffer , char * request_run_tg ){
 	
-	int second_digit = request_temp[0] - '0';
-	int first_digit = request_temp[1] - '0';
-	int input_value = ( (second_digit * 10) + first_digit );
+	write_buffer[5] = request_run_tg[0];
+	write_buffer[6] = request_run_tg[1];
+	write_buffer[7] = request_run_tg[2];
+	write_buffer[8] = request_run_tg[3];
 
+	return write_buffer;
 }
 
 char * request_led_switch_info(char * request_temp){
@@ -198,6 +227,8 @@ char * request_data(char * write_buffer){
 	request_temp[0] = '0';
 	request_temp[1] = '0';
 
+	char request_run_tg[4];
+
 	char request_temp_run_tg[4];
 	for(int i = 0 ; i < 4 ; i++){
 		request_temp_run_tg[i] = '0';
@@ -208,11 +239,12 @@ char * request_data(char * write_buffer){
 		
 	}else if(write_buffer[1] == '2'){
 		upload_flash_info(write_buffer, request_flash_info(request_temp) );
-		//request_flash_info();
+
 	}else if(write_buffer[1] == '3'){
-		rerquest_run_tg_info();
+		upload_run_tg_info(write_buffer, request_run_tg_info(request_run_tg) );
+
 	}else if(write_buffer[1] == '4'){
-		request_led_switch_info();
+		//request_led_switch_info();
 	}
 	return write_buffer;
 
