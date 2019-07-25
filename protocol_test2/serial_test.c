@@ -206,11 +206,10 @@ char * request_run_tg_info(char * request_run_tg ){
 }
 
 char * upload_run_tg_info( char * write_buffer , char * request_run_tg ){
-	
-	write_buffer[5] = request_run_tg[0];
-	write_buffer[6] = request_run_tg[1];
-	write_buffer[7] = request_run_tg[2];
-	write_buffer[8] = request_run_tg[3];
+
+	for(int i = 5 ; i < 9 ; i++){
+		write_buffer[i] = request_run_tg[i-5];
+	}
 
 	return write_buffer;
 }
@@ -263,21 +262,26 @@ char * request_data(char * write_buffer){
 
 }
 
+char * clear_write_buffer(char * write_buffer){
+	for(int i = 0; i < 10 ; i++){
+		write_buffer[i] = '0';
+	}
+	return write_buffer;
+}
+
 
 void main( int argc, char **argv ) {
 
 	int fd;/*File Descriptor*/
 	fd = setUp(argv[1]);
+	
+	char write_buffer[10]; //data array
 	int  bytes_written  = 0;  	/* Value for storing the number of bytes written to the port */ 
 
 	while(1){
 
-		char write_buffer[10]; //data array
+		* write_buffer = * clear_write_buffer(write_buffer);	
 
-		for(int i = 0; i < 10 ; i++){
-			write_buffer[i] = '0';
-		}
-		
 		* write_buffer = * select_menu_item_and_insert_array(menu_page(), write_buffer);
 		
 		* write_buffer = * request_data(write_buffer);
@@ -292,13 +296,13 @@ void main( int argc, char **argv ) {
 		printf("\n  %d Bytes written to ttyUSB0", bytes_written);
 		printf("\n +----------------------------------+\n\n");
 			
-		for(int i = 0; i < 10 ; i++) {
+		/*for(int i = 0; i < 10 ; i++) {
 			printf("%c\n",write_buffer[i]);
-		}
+		}*/
 
 		//ignore enter tab
-  		char tab;
-  		scanf("%c" , &tab);
+  		char temp;
+  		scanf("%c" , &temp);
 
 		bytes_written = 0;
 
