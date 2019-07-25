@@ -7,6 +7,9 @@ char write_buffer[8];
 int unit_brightness = 255 / 10;
 
 int led = 11;
+int led_2 = 10;
+int led_3 = 9;
+
 void write(int multi) {
   analogWrite(led, unit_brightness * multi);
 }
@@ -37,27 +40,73 @@ void pwm(char write_buffer[]) {
   }
 }
 
-void print_buffer(char * write_buffer){
-  for(int i = 0; i < 8 ; i++){
+void flash(char * write_buffer) {
+  digitalWrite(led, LOW);
+  int check = 0;
+
+  int sixth_index = write_buffer[6] - '0';
+  int seventh_index = write_buffer[7] - '0';
+
+  int period = ( sixth_index * 10 ) + seventh_index;
+
+  while (period > 0) {
+    unsigned long time_now = millis();
+
+    while ( (millis() < time_now + (period * 1000)) && (period > 0) ) {
+
+      if (Serial.available()) {
+        check = 1;
+        break;
+      }
+
+    }
+    if (check == 1 ) {
+      break;
+    }
+
+    digitalWrite(led, HIGH);
+
+    unsigned long time_high = millis();
+
+    while ( (millis() < time_high + (period * 1000)) && (period > 0) ) {
+      if (Serial.available()) {
+        check = 1;
+        break;
+      }
+
+    }
+
+    digitalWrite(led, LOW);
+    if (check == 1) {
+      break;
+    }
+
+  }
+
+}
+
+void print_buffer(char * write_buffer) {
+  for (int i = 0; i < 8 ; i++) {
     Serial.println(write_buffer[i]);
   }
 }
 
-void guidance_to_start_menu(char * write_buffer){
+void guidance_to_start_menu(char * write_buffer) {
 
-  if(write_buffer[0] == '1'){
+  if (write_buffer[0] == '1') {
     pwm(write_buffer);
   }
-  else if(write_buffer[0] == '2'){
-    Serial.println("flash");
+  else if (write_buffer[0] == '2') {
+    //Serial.println("flash");
+    flash(write_buffer);
   }
-  else if(write_buffer[0] == '3'){
+  else if (write_buffer[0] == '3') {
     Serial.println("run tg");
   }
-  else if(write_buffer[0] == '4'){
+  else if (write_buffer[0] == '4') {
     Serial.println("led switch");
   }
-  
+
 }
 
 void setup() {
@@ -65,24 +114,24 @@ void setup() {
 }
 
 void loop() {
-  if(Serial.available() ){
+  if (Serial.available() ) {
 
-  incomingValue = Serial.read();
-  incomingChar = incomingValue;
-  
-  if (incomingChar == '&' ){ //stop byte
+    incomingValue = Serial.read();
+    incomingChar = incomingValue;
+
+    if (incomingChar == '&' ) { //stop byte
       isStarted = false;
       //print_buffer(write_buffer);
       guidance_to_start_menu(write_buffer);
-  }
-  else if(incomingChar == '*'){ //start byte
-    isStarted = true;
-    index = 0;
-  }
-  else if(isStarted == true){
-    write_buffer[index] = incomingChar;
-    index++;
-  }
-    
+    }
+    else if (incomingChar == '*') { //start byte
+      isStarted = true;
+      index = 0;
+    }
+    else if (isStarted == true) {
+      write_buffer[index] = incomingChar;
+      index++;
+    }
+
   }
 }
