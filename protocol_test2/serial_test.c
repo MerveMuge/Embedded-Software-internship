@@ -70,7 +70,7 @@ else
 void print_mainMenu(){
 	printf("Main Menu\n");
 	printf("---------\n");
-    printf("Please give an input which is a number from the options available \n");
+    printf("Please give an input which is a number from the available options\n");
   	printf("1. PWM \n");
 	printf("2. Flasher \n");
   	printf("3. PWM & Flasher - run together \n");
@@ -149,6 +149,11 @@ char * request_pwm_info(char * request_temp){
 
 char * upload_pwm_data(char * write_buffer , char * request_temp){
 
+	if(request_temp[0] == 'r'){
+		
+		write_buffer[1] = '0';
+	}else{
+
 	char result_array[2];
 	int second_digit = request_temp[0] - '0';
 	int first_digit = request_temp[1] - '0';
@@ -157,6 +162,9 @@ char * upload_pwm_data(char * write_buffer , char * request_temp){
 	* result_array = * is_one_digit_or_more( request_temp , result_array , 10);
 	write_buffer[5] = result_array[0];
 	write_buffer[6] = result_array[1];
+	//printf("here here here!\n");
+
+	}
 
 	return write_buffer;
 }
@@ -172,6 +180,12 @@ char * request_flash_info(char * request_temp){
 
 char * upload_flash_info(char * write_buffer , char * request_temp){
 
+	if(request_temp[0] == 'r'){
+		
+		write_buffer[1] = '0';
+	}
+	else{
+
 	char result_array[2];
 	int second_digit = request_temp[0] - '0';
 	int first_digit = request_temp[1] - '0';
@@ -180,6 +194,8 @@ char * upload_flash_info(char * write_buffer , char * request_temp){
 	* result_array =  * is_one_digit_or_more(request_temp , result_array , 60);
 	write_buffer[7] = result_array[0];
 	write_buffer[8] = result_array[1];
+
+	}
 
 	return write_buffer;
 }
@@ -212,9 +228,16 @@ char * request_run_tg_info(char * request_run_tg ){
 
 char * upload_run_tg_info( char * write_buffer , char * request_run_tg ){
 
-	for(int i = 5 ; i < 9 ; i++){
-		write_buffer[i] = request_run_tg[i-5];
+	if( (request_run_tg[1] == 'r') || (request_run_tg[3] == 'r') ) {
+		
+		write_buffer[1] = '0';
 	}
+	else{
+		for(int i = 5 ; i < 9 ; i++){
+			write_buffer[i] = request_run_tg[i-5];
+		}		
+	}
+
 
 	return write_buffer;
 }
@@ -230,16 +253,25 @@ char * request_led_switch_info(char * request_led_selection){
 
 char * upload_led_switch_info(char * write_buffer, char * request_led_selection){
 
-	for(int i = 0 ; i < 3; i++ ){
-
-		if(request_led_selection[i] == '1'){
-			write_buffer[2] = '1';
-		}else if(request_led_selection[i] == '2'){
-			write_buffer[3] = '1';
-		}else if(request_led_selection[i] == '3'){
-			write_buffer[4] = '1';
-		}
+	if(request_led_selection[0] == 'r'){
+		
+		write_buffer[1] = '0';
 	}
+	else{
+
+		for(int i = 0 ; i < 3; i++ ){
+
+			if(request_led_selection[i] == '1'){
+				write_buffer[2] = '1';
+			}else if(request_led_selection[i] == '2'){
+				write_buffer[3] = '1';
+			}else if(request_led_selection[i] == '3'){
+				write_buffer[4] = '1';
+			}
+		}
+
+	}
+
 	return write_buffer;
 }
 
