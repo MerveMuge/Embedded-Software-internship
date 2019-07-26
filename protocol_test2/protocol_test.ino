@@ -20,30 +20,24 @@ void write(int multi, int * led_array) {
 }
 
 void pwm(char write_buffer[], int * led_array) {
-  if (write_buffer[5] == '1') {
-    write(1, led_array);
-  } else if (write_buffer[5] == '2') {
-    write(2, led_array);
-  } else if (write_buffer[5] == '3') {
-    write(3, led_array);
-  } else if (write_buffer[5] == '4') {
-    write(4, led_array);
-  } else if (write_buffer[5] == '5') {
-    write(5, led_array);
-  } else if (write_buffer[5] == '6') {
-    write(6, led_array);
-  } else if (write_buffer[5] == '7') {
-    write(7, led_array);
-  } else if (write_buffer[5] == '8') {
-    write(8, led_array);
-  } else if (write_buffer[5] == '9') {
-    write(9, led_array);
-  } else if ((write_buffer[5] == '0') && (write_buffer[4] == '1')) {
-    write(10, led_array);
-  } else if ((write_buffer[5] == '0') && (write_buffer[4] == '0')) {
-    write(0, led_array);
+    int value = read_two_digit_data(write_buffer , 4, 5);
+    write(value, led_array);
+  
+}
+
+void turn_light_low(int * led_array){
+  for (int i = 0; i < 3 ; i++) {
+    digitalWrite(led_array[i], LOW);
   }
 }
+
+void turn_light_high(int * led_array){
+  for (int i = 0; i < 3 ; i++) {
+    digitalWrite(led_array[i], HIGH);
+  }
+}
+
+
 
 void led_switch( char * write_buffer ,int * led_array ) {
   
@@ -52,7 +46,6 @@ void led_switch( char * write_buffer ,int * led_array ) {
     led_array[i] = 0 ;
   }
   
-
   int index = 0;
   if ( write_buffer[1] == '1' ) {
     led_array[index] = 11;
@@ -67,10 +60,7 @@ void led_switch( char * write_buffer ,int * led_array ) {
     index++;
   }
 
-  for (int i = 0; i < 3 ; i++) {
-    digitalWrite(led_array[i], HIGH);
-    //led_array[i] = 0 ;
-  }
+  turn_light_high(led_array);
 
 }
 
@@ -105,9 +95,7 @@ int read_two_digit_data( char * write_buffer , int higher_order , int lower_orde
 
 void run_tg( char * write_buffer , int * led_array) {
 
-  for (int i = 0; i < 3; i++) {
-    digitalWrite(led_array[i], LOW);
-  }
+  turn_light_low(led_array);
 
   int period = read_two_digit_data( write_buffer, 6, 7);
   int pwm = read_two_digit_data( write_buffer, 4, 5);
@@ -122,9 +110,8 @@ void run_tg( char * write_buffer , int * led_array) {
     if ( !(break_checker(period)) ) {
       break;
     }
-    for (int i = 0; i < 3; i++) {
-      digitalWrite(led_array[i], LOW);
-    }
+
+    turn_light_low(led_array);
 
   }
 
@@ -132,9 +119,7 @@ void run_tg( char * write_buffer , int * led_array) {
 
 void flash(char * write_buffer , int * led_array) {
 
-  for (int i = 0; i < 3; i++) {
-    digitalWrite(led_array[i], LOW);
-  }
+  turn_light_low(led_array);
 
   int period = read_two_digit_data( write_buffer, 6, 7);
 
@@ -144,17 +129,13 @@ void flash(char * write_buffer , int * led_array) {
       break;
     }
 
-    for (int i = 0; i < 3; i++) {
-      digitalWrite(led_array[i], HIGH);
-    }
+    turn_light_high(led_array);
 
     if ( !(break_checker(period)) ) {
       break;
     }
 
-    for (int i = 0; i < 3; i++) {
-      digitalWrite(led_array[i], LOW);
-    }
+    turn_light_low(led_array);
 
   }
 }
