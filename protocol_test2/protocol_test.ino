@@ -66,8 +66,10 @@ void led_switch( char * write_buffer ,int * led_array ) {
     led_array[index] = 9;
     index++;
   }
-  for (int i = 0 ; i < 3; i++) {
-    Serial.println(led_array[i]);
+
+  for (int i = 0; i < 3 ; i++) {
+    digitalWrite(led_array[i], HIGH);
+    //led_array[i] = 0 ;
   }
 
 }
@@ -175,7 +177,6 @@ void guidance_to_start_menu(char * write_buffer, int * led_array) {
     run_tg( write_buffer, led_array );
   }
   else if (write_buffer[0] == '4') {
-    //Serial.println("led switch");
     led_switch( write_buffer , led_array );
   }
 }
@@ -193,7 +194,6 @@ void loop() {
 
     if (incomingChar == '&' ) { //stop byte
       isStarted = false;
-      //print_buffer(write_buffer);
       guidance_to_start_menu(write_buffer , led_array);
     }
     else if (incomingChar == '*') { //start byte
