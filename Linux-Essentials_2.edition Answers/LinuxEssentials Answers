@@ -516,3 +516,60 @@ The name for the group data file in Linux is /etc/group, not /etc/groups.
 * UIDs below 500 or 1,000 (depending on the distribution) are reserved for use by ___system__ accounts.
 
 * A(n) __nonrepudiation__ environment means that a person cannot deny actions, and the sudo command helps establish this environment.
+
+SECTON 13
+
+- User Groups
+- Project Groups
+
+$ sudo useradd -m -c "Samantha Bresnahan" -u 1012 samantha
+
+If you were logged into the root account, sudo would not be needed
+
+Behind the scenes, useradd (or by extension its GUI front-ends) modifies the contents of the following files:
+
+/etc/passwd
+/etc/shadow
+/etc/group
+
+Managing Groups from Shell
+
+groupadd -g 1001 consultants
+This example creates a group with a GID of 1001 and a group name of consultants
+
+groupdel consultants
+to delete the consultants group.
+
+Q1 ) What would a Linux system administrator type to remove the nemo account and its home directory?
+
+A) userdel nemo
+B) userdel -f nemo
+C) userdel -r nemo	+++
+D) rm /home/nemo
+E) rm -r /home/nemo
+
+C. The userdel command deletes an account, and the -r option to userdel causes it to delete the user's home directory and mail spool, thus satisfying the terms of the question. Option A deletes the account but leaves the user's home directory intact. Option B does the same; the -f option forces account deletion and file removal under some circumstances, but it's meaningful only when -r is also used. Option D's command will probably have no effect, since rm works on directories only in conjunction with -r, and /home/nemo is probably the user's home directory. Option E's rm command deletes the user's home directory (assuming that it's located in the conventional place, given the username), but it doesn't delete the user's account.
+
+Q2 ) Describe the effect of the following command, assuming that it completes successfully:
+
+# groupadd henry
+
+A) It creates a new group called henry. +++
+
+TRUE / FALSE
+* User accounts have higher UID numbers than do system accounts. (true)
+	 System accounts have UID values between 0 and some number (normally 499 or 999), whereas user accounts have UID values above that number (starting at 500 or 1000, typically).
+
+* Command-line users should normally use usermod to change their passwords. (false)
+	The usual command-line command for changing passwords is passwd.
+
+* After deleting an account, files formerly owned by the deleted account may remain on the computer. (true)
+	Although the userdel command's -r option deletes the user's home directory and mail files, this command doesn't track down the user's files stored in more-exotic locations. You can use find to locate such files if you want to delete them or transfer ownership to another user.
+
+* You want to create an account for a new user, using the username theo and giving the user a UID of 1926. The command to do this is useradd __-u 1926 theo_.
+
+* You want to change the username of a user from e1211 to emilyn, without altering anything else about the account. To do so, you would type _usermod -l emilyn e1211__
+
+* To create a system group, you must pass the _-r or --system_ option to groupadd.
+
+* Information on various groups, such as group name, GID, and group members is stored in the __/etc/group_ file. (The answer should be an absolute file reference.)
