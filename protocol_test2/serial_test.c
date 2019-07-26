@@ -77,15 +77,20 @@ void print_mainMenu(){
   	printf("4. Led Selection \n");
 }
 
-char menu_page(){
+char menu_page(int fd){
 	clearScreen();
   	print_mainMenu();
 
   	char c_menu;
   	scanf("%c" , &c_menu);
   	if((c_menu != '\n') && (c_menu != '\t') && (c_menu != '\r')){
+
+  		if( c_menu == 'q'){
+  			close(fd);
+  		}else{
+  			return c_menu;	
+  		}
   		
-  		return c_menu;
   	}
 
 }
@@ -282,7 +287,7 @@ void main( int argc, char **argv ) {
 
 		* write_buffer = * clear_write_buffer(write_buffer);	
 
-		* write_buffer = * select_menu_item_and_insert_array(menu_page(), write_buffer);
+		* write_buffer = * select_menu_item_and_insert_array(menu_page(fd), write_buffer);
 		
 		* write_buffer = * request_data(write_buffer);
 
