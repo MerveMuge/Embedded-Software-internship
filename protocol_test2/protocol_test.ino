@@ -40,6 +40,23 @@ void pwm(char write_buffer[]) {
   }
 }
 
+bool break_checker(int period ){
+    bool check = true;
+
+    unsigned long time_now = millis();
+
+    while ( (millis() < time_now + (period * 1000)) ) {
+      if (Serial.available()) {
+        check = false;
+        break;
+      }
+    }
+    if ( !check ) {
+      return check;
+    }
+  
+}
+
 void flash(char * write_buffer) {
   digitalWrite(led, LOW);
   int check = 0;
@@ -50,37 +67,18 @@ void flash(char * write_buffer) {
   int period = ( sixth_index * 10 ) + seventh_index;
 
   while (period > 0) {
-    unsigned long time_now = millis();
 
-    while ( (millis() < time_now + (period * 1000)) && (period > 0) ) {
-
-      if (Serial.available()) {
-        check = 1;
-        break;
-      }
-
-    }
-    if (check == 1 ) {
+    if( !(break_checker(period)) ){
       break;
     }
 
     digitalWrite(led, HIGH);
 
-    unsigned long time_high = millis();
-
-    while ( (millis() < time_high + (period * 1000)) && (period > 0) ) {
-      if (Serial.available()) {
-        check = 1;
-        break;
-      }
-
-    }
-
-    digitalWrite(led, LOW);
-    if (check == 1) {
+    if( !(break_checker(period)) ){
       break;
     }
-
+    digitalWrite(led, LOW);
+    
   }
 
 }
