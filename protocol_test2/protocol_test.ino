@@ -10,108 +10,151 @@ int led = 11;
 int led_2 = 10;
 int led_3 = 9;
 
-void write(int multi) {
-  analogWrite(led, unit_brightness * multi);
-}
+int led_array[] = {11, 0, 0};
+//led_array[0] = 11;
 
-void pwm(char write_buffer[]) {
-  if (write_buffer[5] == '1') {
-    write(1);
-  } else if (write_buffer[5] == '2') {
-    write(2);
-  } else if (write_buffer[5] == '3') {
-    write(3);
-  } else if (write_buffer[5] == '4') {
-    write(4);
-  } else if (write_buffer[5] == '5') {
-    write(5);
-  } else if (write_buffer[5] == '6') {
-    write(6);
-  } else if (write_buffer[5] == '7') {
-    write(7);
-  } else if (write_buffer[5] == '8') {
-    write(8);
-  } else if (write_buffer[5] == '9') {
-    write(9);
-  } else if ((write_buffer[5] == '0') && (write_buffer[4] == '1')) {
-    write(10);
-  } else if ((write_buffer[5] == '0') && (write_buffer[4] == '0')) {
-    write(0);
+void write(int multi, int * led_array) {
+  for (int i = 0 ; i < 3 ; i++) {
+    analogWrite(led_array[i], unit_brightness * multi);
   }
 }
 
-bool break_checker(int period ){
-    bool check = true;
-
-    unsigned long time_now = millis();
-
-    while ( (millis() < time_now + (period * 1000)) ) {
-      if (Serial.available()) {
-        check = false;
-        break;
-      }
-    }
-    if ( !check ) {
-      return check;
-    }
-  
+void pwm(char write_buffer[], int * led_array) {
+  if (write_buffer[5] == '1') {
+    write(1, led_array);
+  } else if (write_buffer[5] == '2') {
+    write(2, led_array);
+  } else if (write_buffer[5] == '3') {
+    write(3, led_array);
+  } else if (write_buffer[5] == '4') {
+    write(4, led_array);
+  } else if (write_buffer[5] == '5') {
+    write(5, led_array);
+  } else if (write_buffer[5] == '6') {
+    write(6, led_array);
+  } else if (write_buffer[5] == '7') {
+    write(7, led_array);
+  } else if (write_buffer[5] == '8') {
+    write(8, led_array);
+  } else if (write_buffer[5] == '9') {
+    write(9, led_array);
+  } else if ((write_buffer[5] == '0') && (write_buffer[4] == '1')) {
+    write(10, led_array);
+  } else if ((write_buffer[5] == '0') && (write_buffer[4] == '0')) {
+    write(0, led_array);
+  }
 }
 
-int read_two_digit_data( char * write_buffer , int higher_order , int lower_order ){
+void led_switch( char * write_buffer ,int * led_array ) {
+  
+  for (int i = 0; i < 3 ; i++) {
+    digitalWrite(led_array[i], LOW);
+    led_array[i] = 0 ;
+  }
+  
+
+  int index = 0;
+  if ( write_buffer[1] == '1' ) {
+    led_array[index] = 11;
+    index++;
+  }
+  if ( write_buffer[2] == '1' ) {
+    led_array[index] = 10;
+    index++;
+  }
+  if ( write_buffer[3] == '1' ) {
+    led_array[index] = 9;
+    index++;
+  }
+  for (int i = 0 ; i < 3; i++) {
+    Serial.println(led_array[i]);
+  }
+
+}
+
+bool break_checker(int period ) {
+  bool check = true;
+
+  unsigned long time_now = millis();
+
+  while ( (millis() < time_now + (period * 1000)) ) {
+    if (Serial.available()) {
+      check = false;
+      break;
+    }
+  }
+  if ( !check ) {
+    return check;
+  }
+
+}
+
+int read_two_digit_data( char * write_buffer , int higher_order , int lower_order ) {
 
   int higher_digit = write_buffer[higher_order] - '0';
   int lower_digit = write_buffer[lower_order] - '0';
-  
+
   int value = ( higher_digit * 10 ) + lower_digit;
-  
+
   return value;
-    
+
 }
 
 
-void run_tg( char * write_buffer ){
-  
-  digitalWrite(led, LOW);
-  
+void run_tg( char * write_buffer , int * led_array) {
+
+  for (int i = 0; i < 3; i++) {
+    digitalWrite(led_array[i], LOW);
+  }
+
   int period = read_two_digit_data( write_buffer, 6, 7);
   int pwm = read_two_digit_data( write_buffer, 4, 5);
 
   while (period > 0) {
 
-    if( !(break_checker(period)) ){
+    if ( !(break_checker(period)) ) {
       break;
     }
-    
-    write(pwm);
-    if( !(break_checker(period)) ){
+
+    write(pwm, led_array);
+    if ( !(break_checker(period)) ) {
       break;
     }
-    
-    digitalWrite(led, LOW);
+    for (int i = 0; i < 3; i++) {
+      digitalWrite(led_array[i], LOW);
+    }
+
   }
-  
+
 }
 
-void flash(char * write_buffer) {
-  
-  digitalWrite(led, LOW);
+void flash(char * write_buffer , int * led_array) {
+
+  for (int i = 0; i < 3; i++) {
+    digitalWrite(led_array[i], LOW);
+  }
+
   int period = read_two_digit_data( write_buffer, 6, 7);
 
   while (period > 0) {
 
-    if( !(break_checker(period)) ){
+    if ( !(break_checker(period)) ) {
       break;
     }
 
-    digitalWrite(led, HIGH);
+    for (int i = 0; i < 3; i++) {
+      digitalWrite(led_array[i], HIGH);
+    }
 
-    if( !(break_checker(period)) ){
+    if ( !(break_checker(period)) ) {
       break;
     }
-    digitalWrite(led, LOW);
-    
+
+    for (int i = 0; i < 3; i++) {
+      digitalWrite(led_array[i], LOW);
+    }
+
   }
-
 }
 
 void print_buffer(char * write_buffer) {
@@ -120,22 +163,23 @@ void print_buffer(char * write_buffer) {
   }
 }
 
-void guidance_to_start_menu(char * write_buffer) {
+void guidance_to_start_menu(char * write_buffer, int * led_array) {
 
   if (write_buffer[0] == '1') {
-    pwm(write_buffer);
+    pwm(write_buffer , led_array );
   }
   else if (write_buffer[0] == '2') {
-    flash(write_buffer);
+    flash(write_buffer , led_array );
   }
   else if (write_buffer[0] == '3') {
-    run_tg( write_buffer);
+    run_tg( write_buffer, led_array );
   }
   else if (write_buffer[0] == '4') {
-    Serial.println("led switch");
+    //Serial.println("led switch");
+    led_switch( write_buffer , led_array );
   }
-
 }
+
 
 void setup() {
   Serial.begin(115200);
@@ -150,7 +194,7 @@ void loop() {
     if (incomingChar == '&' ) { //stop byte
       isStarted = false;
       //print_buffer(write_buffer);
-      guidance_to_start_menu(write_buffer);
+      guidance_to_start_menu(write_buffer , led_array);
     }
     else if (incomingChar == '*') { //start byte
       isStarted = true;
