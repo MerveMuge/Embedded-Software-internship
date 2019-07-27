@@ -573,3 +573,80 @@ TRUE / FALSE
 * To create a system group, you must pass the _-r or --system_ option to groupadd.
 
 * Information on various groups, such as group name, GID, and group members is stored in the __/etc/group_ file. (The answer should be an absolute file reference.)
+
+SECTION 14
+
+Setting Ownership in a Shell
+
+The command to change the ownership of a file in the preferred text-mode manner is chown.
+# chown bob targetfile.odf
+
+This example gives ownership of targetfile.odf to bob. You can change the file’s principal owner and its group with a single command by separating the owner and group with a colon (:):
+# chown bob:users targetfile.odf
+
+Alternatively, you can use the chgrp command, which works in the same way but changes only the group and does not require the colon before the group name:
+$ chgrp users targetfile.odf
+
+The most useful of these is -R (or ––recursive ), which causes a change in ownership of all the files in an entire directory tree.
+
+For instance, suppose that the user mary has left a company, and an existing employee, bob , must access her files. If mary’s home directory was /home/mary , you might type this:
+# chown -R bob /home/mary
+
+* “chmod” command is used to change file/directory mode bits or  ermissions. 
+
+As with the chown and chgrp commands, you can use the -R (or ––recursive)option to chmod to have it operate on an entire directory tree.
+
+Q1 ) What command would you type (as root) to change the ownership of somefile.txt from
+ralph to tony?
+
+A. chown ralph:tony somefile.txt 
+B. chmod somefile.txt tony
+C. chown somefile.txt tony
+D. chmod tony:ralph somefile.txt 	+++
+E. chown tony somefile.txt
+
+D. Option D is the correct command. Typing chown ralph:tony somefile.txt, as in option A, sets the owner of the file to ralph and the group to tony. The chmod command used in options B and E is used to change file permissions, not ownership. Option C reverses the order of the filename and the owner.
+
+Q2 ) Typing ls -ld wonderjaye reveals a symbolic file mode of drwxr-xr-x . Which of the following are true? (Select all that apply.)
+
+A. wonderjaye is a symbolic link.
+B. wonderjaye is an executable program.
+C. wonderjaye is a directory.		+++
+D. All users of the system may read wonderjaye .
+E. Any member of the file’s group may write wonderjaye .	+++
+
+Q3 ) Which of the following commands can you use to change a file's group?
+
+A) groupadd
+B) groupmod
+C) chmod
+D) ls
+E) chown	+++
+
+E. Although the chgrp command is the usual one for changing a file's group, you can also use chown to do the job, so option E is correct. 
+Option A's groupadd command adds a new group to the system, so this option is incorrect. The groupmod command can modify details of a group definition, but it doesn't change the group associated with a file, so option B is incorrect. The chmod command changes a file's mode (that is, its permissions), but not its group association, so option C is incorrect. You can use ls to learn a file's current group (among other things), but not to change it, so option D is incorrect.
+
+TRUE/ FALSE
+
+* A file with permissions of 755 can be read by any user on the computer, assuming that all users can read the directory in which it resides.	(True)
+
+True. The octal permission of 755 corresponds to a symbolic representation of -rwxr-xr-x, which includes world read permissions (in the final three bits of r-x). Thus anybody can read the file.
+
+* Only root may use the chmod command. (False)
+
+Any user may use chmod; however, only a file's owner or root may change the permissions on a file.
+
+* Only root may change a file's ownership with chown. (True)
+
+Although an ordinary user can use chown to change a file's group, ordinary users cannot change a file's ownership.
+
+* What option causes chown to change ownership on an entire directory tree.
+-> -R or --recursive
+
+* What three-character symbolic string represents read and execute permission but no write permission?
+->	r-x
+
+* What symbolic representation can you pass to chmod to give all users execute access to a file without affecting other permissions?
+-> a+x
+
+* You want to set the sticky bit on an existing directory, subdir, without otherwise altering its permissions. To do so, you would type chmod __o+t_ subdir.
