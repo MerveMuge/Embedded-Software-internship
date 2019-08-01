@@ -52,13 +52,13 @@ void loop() {
       }
 
       if (counter == 0 ) {
-        delay(1000);
+        //delay(1000);
         counter++;
         on();
         break;
       }
       else if (counter == 1) {
-        delay(1000);
+        //delay(1000);
         counter++;
         off();
         break;
