@@ -20,6 +20,10 @@ void check_in_setup(int temp) {
       counter = 1;
       digitalWrite(led, HIGH);
       break;
+    case 2:
+      counter = 0;
+      analogWrite(led, 50);
+      break;
   }
 }
 
@@ -37,9 +41,15 @@ void on() {
   digitalWrite(led, HIGH);
   EEPROM.write(addr, 1);
 }
+
 void off() {
   digitalWrite(led, LOW);
   EEPROM.write(addr, 0);
+}
+
+void pwm(){
+  analogWrite(led, 50);
+  EEPROM.write(addr, 2);
 }
 
 void loop() {
@@ -47,7 +57,7 @@ void loop() {
   while (1) {
     if (digitalRead(button) == HIGH) {
       Serial.println(counter);
-      if (counter == 2) {
+      if (counter == 3) {
         counter = 0;
       }
 
@@ -61,6 +71,11 @@ void loop() {
         //delay(1000);
         counter++;
         off();
+        break;
+      }
+      else if (counter == 2) {
+        counter++;
+        pwm();
         break;
       }
     }
