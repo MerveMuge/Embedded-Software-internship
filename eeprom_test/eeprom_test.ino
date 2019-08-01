@@ -14,6 +14,7 @@ void check_in_setup(int temp) {
 
   switch (temp) {
     case 0:
+      counter = 2;
       digitalWrite(led, LOW);
       break;
     case 1:
@@ -22,7 +23,8 @@ void check_in_setup(int temp) {
       break;
     case 2:
       counter = 0;
-      analogWrite(led, 50);
+      //analogWrite(led, 50);
+      pwm();
       break;
   }
 }
