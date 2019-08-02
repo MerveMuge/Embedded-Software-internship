@@ -9,6 +9,7 @@ int button_high = HIGH;
 int button_low = LOW;
 
 int counter = 0;
+int result[2];
 
 void check_in_setup(int temp) {
 
@@ -147,20 +148,19 @@ int * in_loop(int counter, int * result) {
 void loop() {
 
   while (1) {
-    int result[2];
-    if (digitalRead(button) == HIGH) {
 
+    if (digitalRead(button) == HIGH) {
       if (counter == 4) {
         counter = 0;
       }
+
       Serial.println(counter);
 
-      * result = * in_loop(counter, result); 
-
-      if(result[0] == 1){
+      * result = * in_loop(counter, result);
+      if (result[0] == 1) {
         counter = result[1];
         break;
-      }else if(result[0] == 0){
+      } else if (result[0] == 0) {
         counter = result[1];
       }
 
