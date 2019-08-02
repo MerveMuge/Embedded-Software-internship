@@ -51,13 +51,48 @@ void off() {
   EEPROM.write(addr, 0);
 }
 
-void pwm() {
-  analogWrite(led, 50);
+int pwm() {
+
+  int brightness = 0;    // how bright the LED is
+  int fadeAmount = 5;    // how many points to fade the LED by
   EEPROM.write(addr, 2);
+  delay(1000);
+  while (1) {
+
+    if (!(digitalRead(button) == HIGH) ) {
+      analogWrite(led, brightness);
+    }
+    else {
+      break;
+    }
+
+    if (!(digitalRead(button) == HIGH) ) {
+      brightness = brightness + fadeAmount;
+    }
+    else {
+      break;
+    }
+
+    if (!(digitalRead(button) == HIGH) ) {
+      if (brightness <= 0 || brightness >= 255) {
+        fadeAmount = -fadeAmount;
+      }
+    }
+    else {
+      break;
+    }
+
+    delay(30);
+
+  }
+  counter = 3;
+  return counter;
 }
 
 void flash() {
+
   EEPROM.write(addr, 3);
+
   digitalWrite(led, HIGH);
   delay(500);
   digitalWrite(led, LOW);
@@ -90,8 +125,12 @@ void loop() {
       }
       else if (counter == 2) {
         counter++;
-        pwm();
-        break;
+        counter = pwm();
+        if (counter != 3) {
+          //flash();
+          break;
+        }
+        //break;
       }
       else if (counter == 3) {
         counter++;
