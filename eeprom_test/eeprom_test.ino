@@ -51,6 +51,15 @@ void off() {
   EEPROM.write(addr, 0);
 }
 
+bool is_button_not_high() {
+
+  if (!(digitalRead(button) == HIGH) ) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 int pwm() {
 
   int brightness = 0;    // how bright the LED is
@@ -59,21 +68,17 @@ int pwm() {
   delay(1000);
   while (1) {
 
-    if (!(digitalRead(button) == HIGH) ) {
+    if ( is_button_not_high() )
       analogWrite(led, brightness);
-    }
-    else {
+    else
       break;
-    }
 
-    if (!(digitalRead(button) == HIGH) ) {
+    if ( is_button_not_high() )
       brightness = brightness + fadeAmount;
-    }
-    else {
+    else
       break;
-    }
 
-    if (!(digitalRead(button) == HIGH) ) {
+    if ( is_button_not_high() ) {
       if (brightness <= 0 || brightness >= 255) {
         fadeAmount = -fadeAmount;
       }
@@ -95,24 +100,18 @@ int flash() {
   delay(1000);
   while (1) {
 
-    if (!(digitalRead(button) == HIGH) ) {
-      Serial.println("high");
+    if ( is_button_not_high() )
       digitalWrite(led, HIGH);
-    } else {
+    else
       break;
-    }
 
-    Serial.println("delay");
     delay(100);
 
-    if (!(digitalRead(button) == HIGH) ) {
-      Serial.println("low");
+    if ( is_button_not_high() )
       digitalWrite(led, LOW);
-    } else {
+    else
       break;
-    }
 
-    Serial.println("delay");
     delay(100);
   }
   counter = 4;
