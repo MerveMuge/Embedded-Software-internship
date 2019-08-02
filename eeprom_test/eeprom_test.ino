@@ -89,17 +89,46 @@ int pwm() {
   return counter;
 }
 
-void flash() {
+int flash() {
 
   EEPROM.write(addr, 3);
+  Serial.println("here flash");
+  delay(1000);
+  while (1) {
+    Serial.println("here flash while");
 
-  digitalWrite(led, HIGH);
-  delay(500);
-  digitalWrite(led, LOW);
-  delay(500);
-  digitalWrite(led, HIGH);
-  delay(500);
-  digitalWrite(led, LOW);
+    if (!(digitalRead(button) == HIGH) ) {
+      Serial.println("high");
+      digitalWrite(led, HIGH);
+    } else {
+      break;
+    }
+
+    //if (!(digitalRead(button) == HIGH) ) {
+      Serial.println("delay");
+      delay(100);
+    //} else {
+    //  break;
+    //}
+
+    if (!(digitalRead(button) == HIGH) ) {
+      Serial.println("low");
+      digitalWrite(led, LOW);
+    } else {
+      break;
+    }
+
+    //if (!(digitalRead(button) == HIGH) ) {
+      Serial.println("delay");
+      delay(100);
+    //} else {
+    //  break;
+    //}
+
+  }
+  counter = 4;
+  return counter;
+
 }
 
 void loop() {
@@ -134,8 +163,11 @@ void loop() {
       }
       else if (counter == 3) {
         counter++;
-        flash();
-        break;
+        counter = flash();
+        if (counter != 4) {
+          break;
+        }
+        
       }
     }
   }
