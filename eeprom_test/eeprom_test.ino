@@ -119,31 +119,51 @@ int flash() {
 
 }
 
+int * in_loop(int counter, int * result) {
+
+  if (counter == 0 ) {
+    counter++;
+    on();
+    result[0] = 1; //break
+  }
+  else if (counter == 1) {
+    counter++;
+    off();
+    result[0] = 1; //break
+  }
+  else if (counter == 2) {
+    counter = pwm();
+    result[0] = 0;
+  }
+  else if (counter == 3) {
+    counter = flash();
+    result[0] = 0;
+  }
+
+  result[1] = counter;
+  return result;
+}
+
 void loop() {
 
   while (1) {
+    int result[2];
     if (digitalRead(button) == HIGH) {
 
       if (counter == 4) {
         counter = 0;
       }
       Serial.println(counter);
-      if (counter == 0 ) {
-        counter++;
-        on();
+
+      * result = * in_loop(counter, result); 
+
+      if(result[0] == 1){
+        counter = result[1];
         break;
+      }else if(result[0] == 0){
+        counter = result[1];
       }
-      else if (counter == 1) {
-        counter++;
-        off();
-        break;
-      }
-      else if (counter == 2) {
-        counter = pwm();
-      }
-      else if (counter == 3) {
-        counter = flash();
-      }
+
     }
   }
 
