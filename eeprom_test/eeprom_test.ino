@@ -145,7 +145,7 @@ int * in_loop(int counter, int * result) {
   return result;
 }
 
-void loop() {
+void loop_f() {
 
   while (1) {
 
@@ -154,8 +154,6 @@ void loop() {
         counter = 0;
       }
 
-      Serial.println(counter);
-
       * result = * in_loop(counter, result);
       if (result[0] == 1) {
         counter = result[1];
@@ -163,8 +161,8 @@ void loop() {
       } else if (result[0] == 0) {
         counter = result[1];
       }
-
     }
+
   }
 
   while (1) {
@@ -172,4 +170,10 @@ void loop() {
       break;
     }
   }
+
+}
+
+
+void loop() {
+  loop_f();
 }
