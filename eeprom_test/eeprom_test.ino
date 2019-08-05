@@ -94,9 +94,9 @@ struct opManager {
       if ( m_opMode == FLASH )
         m_opMode = ON;
       else {
-        int temp = m_opMode;
-        temp++;
-        m_opMode = (opMode) temp;
+        int temp_opMode = m_opMode;
+        temp_opMode++;
+        m_opMode = (opMode) temp_opMode;
       }
 
       return m_opMode;
@@ -107,6 +107,30 @@ struct opManager {
     }
 
 } opManagerSt;
+
+int select_menu_item(int next_item) {
+
+  switch (next_item) {
+    case 0:
+      Serial.println("HIGH");
+      On(); 
+      return 1;
+    case 1:
+      Serial.println("LOW");
+      Off();
+      return 1;
+    case 2:
+      Serial.println("PWM");
+      Pwm();
+      return 1;
+    case 3:
+      Serial.println("FLASH");
+      Flash();
+      return 1;
+
+  }
+
+}
 
 void setup() {
 
@@ -126,32 +150,16 @@ void loop() {
 
       int next_item = opManagerSt.next();
 
-      if (next_item == 0 ) {
-        Serial.println("HIGH");
-        digitalWrite(led, HIGH);
+      if ( select_menu_item(next_item) == 1 ) {
         break;
       }
-      else if ( next_item == 1 ) {
-        Serial.println("LOW");
-        digitalWrite(led, LOW);
-        break;
-      }
-      else if (next_item == 2 ) {
-        Serial.println("PWM");
-        Pwm();
-        break;
-      }
-      else if ( next_item == 3 ) {
-        Serial.println("FLASH");
-        Flash();
-        break;
-      }
+
     }
   }
 
 
   while (1) {
-    if (digitalRead(button) == LOW) {
+    if ( digitalRead(button) == LOW ) {
       break;
     }
   }
