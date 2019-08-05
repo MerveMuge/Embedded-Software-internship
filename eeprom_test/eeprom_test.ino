@@ -4,52 +4,14 @@ int addr = 0;
 int led = 9;
 int button = 2;
 
-int temp = 0;
-int button_high = HIGH;
-int button_low = LOW;
-
-int counter = 0;
-int result[2];
-
-void check_in_setup(int temp) {
-
-  switch (temp) {
-    case 0:
-      counter = 2;
-      digitalWrite(led, LOW);
-      break;
-    case 1:
-      counter = 1;
-      digitalWrite(led, HIGH);
-      break;
-    case 2:
-      counter = 3;
-      pwm();
-      break;
-    case 3:
-      counter = 0;
-      flash();
-      break;
-  }
-}
-
-void setup() {
-  Serial.begin(115200);
-  pinMode(led, OUTPUT);
-  pinMode(button, INPUT);
-
-  temp = EEPROM.read(addr);
-  check_in_setup(temp);
-}
-
-void on() {
+void On() {
   digitalWrite(led, HIGH);
-  EEPROM.write(addr, 1);
+  //EEPROM.write(addr, 1);
 }
 
-void off() {
+void Off() {
   digitalWrite(led, LOW);
-  EEPROM.write(addr, 0);
+  //EEPROM.write(addr, 0);
 }
 
 bool is_button_not_high() {
@@ -65,8 +27,8 @@ int pwm() {
 
   int brightness = 0;    // how bright the LED is
   int fadeAmount = 5;    // how many points to fade the LED by
-  EEPROM.write(addr, 2);
-  delay(1000);
+  //EEPROM.write(addr, 2);
+  delay(300);
   while (1) {
 
     if ( is_button_not_high() )
@@ -91,14 +53,10 @@ int pwm() {
     delay(30);
 
   }
-  counter = 3;
-  return counter;
 }
 
 int flash() {
-
-  EEPROM.write(addr, 3);
-  delay(1000);
+  delay(300);
   while (1) {
 
     if ( is_button_not_high() )
@@ -112,58 +70,93 @@ int flash() {
       digitalWrite(led, LOW);
     else
       break;
-
     delay(100);
   }
-  counter = 4;
-  return counter;
-
 }
 
-int * in_loop(int counter, int * result) {
+enum opMode {
+  ON,
+  OFF,
+  PWM,
+  FLASH
+};
 
-  if (counter == 0 ) {
-    counter++;
-    on();
-    result[0] = 1; //break
-  }
-  else if (counter == 1) {
-    counter++;
-    off();
-    result[0] = 1; //break
-  }
-  else if (counter == 2) {
-    counter = pwm();
-    result[0] = 0;
-  }
-  else if (counter == 3) {
-    counter = flash();
-    result[0] = 0;
-  }
+struct opManager {
+  private:
+    opMode m_opMode;
 
-  result[1] = counter;
-  return result;
-}
-
-void loop_f() {
-
-  while (1) {
-
-    if (digitalRead(button) == HIGH) {
-      if (counter == 4) {
-        counter = 0;
+  public:
+    /*opManager(opMode mode) {
+      m_opMode = mode;
+      }*/
+    opMode next() {
+      if ( m_opMode == ON ) {
+        m_opMode = OFF;
+        delay(1000);
+      }
+      else if ( m_opMode == OFF ) {
+        m_opMode = PWM;
+        delay(1000);
+      }
+      else if ( m_opMode == PWM ) {
+        m_opMode = FLASH;
+        delay(1000);
+      }
+      else if ( m_opMode == FLASH ) {
+        m_opMode = ON;
+        delay(1000);
       }
 
-      * result = * in_loop(counter, result);
-      if (result[0] == 1) {
-        counter = result[1];
-        break;
-      } else if (result[0] == 0) {
-        counter = result[1];
-      }
+      return m_opMode;
     }
 
+    opMode currentMode() {
+      return m_opMode;
+    }
+
+} opManagerSt;
+
+void setup() {
+
+  Serial.begin(115200);
+  pinMode(led, OUTPUT);
+  pinMode(button, INPUT);
+
+  //opMode m_modem;
+  //opManager(m_modem);
+
+}
+
+void loop() {
+
+  while (1) {
+    if (digitalRead(button) == HIGH) {
+      
+      int next_item = opManagerSt.next();
+
+      if (next_item == 0 ) {
+        Serial.println("HIGH");
+        digitalWrite(led, HIGH);
+        break;
+      }
+      else if ( next_item == 1 ) {
+        Serial.println("LOW");
+        digitalWrite(led, LOW);
+        break;
+      }
+      else if (next_item == 2 ) {
+        Serial.println("PWM");
+        pwm();
+        break;
+      }
+      else if ( next_item == 3 ) {
+        Serial.println("FLASH");
+        flash();
+        break;
+      }
+    }
   }
+
 
   while (1) {
     if (digitalRead(button) == LOW) {
@@ -171,9 +164,4 @@ void loop_f() {
     }
   }
 
-}
-
-
-void loop() {
-  loop_f();
 }
