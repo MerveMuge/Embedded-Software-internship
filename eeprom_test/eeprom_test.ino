@@ -138,8 +138,8 @@ void setup() {
   pinMode(led, OUTPUT);
   pinMode(button, INPUT);
 
-  //opMode m_modem;
-  //opManager(m_modem);
+  int eeprom_read_value = EEPROM.read(addr);
+  select_menu_item( eeprom_read_value );
 
 }
 
