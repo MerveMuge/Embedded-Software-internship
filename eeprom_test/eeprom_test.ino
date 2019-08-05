@@ -6,28 +6,28 @@ int button = 2;
 
 void On() {
   digitalWrite(led, HIGH);
-  //EEPROM.write(addr, 1);
+  EEPROM.write(addr, 0);
 }
 
 void Off() {
   digitalWrite(led, LOW);
-  //EEPROM.write(addr, 0);
+  EEPROM.write(addr, 1);
 }
 
 bool is_button_not_high() {
 
-  if (!(digitalRead(button) == HIGH) ) {
+  if ( !(digitalRead(button) == HIGH) ) {
     return true;
   } else {
     return false;
   }
 }
 
-int pwm() {
+int Pwm() {
 
   int brightness = 0;    // how bright the LED is
   int fadeAmount = 5;    // how many points to fade the LED by
-  //EEPROM.write(addr, 2);
+  EEPROM.write(addr, 2);
   delay(300);
   while (1) {
 
@@ -55,8 +55,9 @@ int pwm() {
   }
 }
 
-int flash() {
+int Flash() {
   delay(300);
+  EEPROM.write(addr, 3);
   while (1) {
 
     if ( is_button_not_high() )
@@ -90,21 +91,12 @@ struct opManager {
       m_opMode = mode;
       }*/
     opMode next() {
-      if ( m_opMode == ON ) {
-        m_opMode = OFF;
-        delay(1000);
-      }
-      else if ( m_opMode == OFF ) {
-        m_opMode = PWM;
-        delay(1000);
-      }
-      else if ( m_opMode == PWM ) {
-        m_opMode = FLASH;
-        delay(1000);
-      }
-      else if ( m_opMode == FLASH ) {
+      if ( m_opMode == FLASH )
         m_opMode = ON;
-        delay(1000);
+      else {
+        int temp = m_opMode;
+        temp++;
+        m_opMode = (opMode) temp;
       }
 
       return m_opMode;
@@ -131,7 +123,7 @@ void loop() {
 
   while (1) {
     if (digitalRead(button) == HIGH) {
-      
+
       int next_item = opManagerSt.next();
 
       if (next_item == 0 ) {
@@ -146,12 +138,12 @@ void loop() {
       }
       else if (next_item == 2 ) {
         Serial.println("PWM");
-        pwm();
+        Pwm();
         break;
       }
       else if ( next_item == 3 ) {
         Serial.println("FLASH");
-        flash();
+        Flash();
         break;
       }
     }
