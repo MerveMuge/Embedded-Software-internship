@@ -119,10 +119,7 @@ int Flash() {
   return 1;
 }
 
-
-int Select_menu_item(int next_item) {
-
-  int result = 0;
+void Select_menu_item(int next_item) {
 
   switch (next_item) {
     case 0:
@@ -133,24 +130,17 @@ int Select_menu_item(int next_item) {
       break;
     case 2:
       if (Pwm() == 1) {
-        //Select_menu_item(3);
         int next = opManagerSt.next();
         Select_menu_item(next);
-        //result = 1;
       }
       break;
     case 3:
       if ( Flash() == 1 ) {
-        //On();
-        //Select_menu_item(0);
-        //opManagerSt.next();
-        //result = 2;
         int next = opManagerSt.next();
         Select_menu_item(next);
       }
       break;
   }
-  return result;
 
 }
 
