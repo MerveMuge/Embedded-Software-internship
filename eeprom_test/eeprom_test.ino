@@ -1,8 +1,8 @@
 #include <EEPROM.h>
 
-int addr = 0;
-int led = 9;
-int button = 2;
+#define addr 0
+#define led 9
+#define button 2
 
 enum opMode {
   ON,
@@ -148,7 +148,8 @@ void setup() {
 
   Serial.begin(115200);
   pinMode(led, OUTPUT);
-  pinMode(button, INPUT);
+  pinMode(button, INPUT_PULLUP);
+  //pinMode(button, INPUT);
 
   int eeprom_read_value = EEPROM.read(addr);
   Select_menu_item( eeprom_read_value );
@@ -164,7 +165,6 @@ void loop() {
 
       Select_menu_item(next_item);
       break;
-
     }
   }
 
