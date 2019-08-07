@@ -4,8 +4,16 @@
 #define led 9
 #define button 2
 
-volatile int state = 0;
+volatile int next_state = 0;
 
+bool is_button_not_high() {
+
+  if ( !(digitalRead(button) == HIGH) ) {
+    return true;
+  } else {
+    return false;
+  }
+}
 
 void On() {
   Serial.println("HIGH");
@@ -24,37 +32,56 @@ int Pwm() {
   int brightness = 0;    // how bright the LED is
   int fade_amount = 5;    // how many points to fade the LED by
   EEPROM.write(addr, 2);
-  delay(300);
-  while (1) {
+  bool pwm_temp = true;
+  while ( pwm_temp != false ) {
 
-    analogWrite(led, brightness);
-    brightness = brightness + fade_amount;
-    if (brightness <= 0 || brightness >= 255) {
-      fade_amount = -fade_amount;
-    }
-    delay(30);
-    /*if ( is_button_not_high() )
+    if ( is_button_not_high() )
       analogWrite(led, brightness);
-      else {
-      break;
-      }
+    else {
+      pwm_temp = false;
+    }
 
-      if ( is_button_not_high() )
+    if ( is_button_not_high() )
       brightness = brightness + fade_amount;
-      else {
-      break;
-      }
+    else {
+      pwm_temp = false;
+    }
 
-      if ( is_button_not_high() ) {
+    if ( is_button_not_high() ) {
       if (brightness <= 0 || brightness >= 255) {
         fade_amount = -fade_amount;
       }
-      }
-      else {
-      break;
-      }
-      delay(30);*/
+    }
+    else {
+      pwm_temp = false;
+    }
+    delay(30);
+  }
 
+  return 1;
+}
+
+int Flash() {
+  Serial.println("FLASH");
+  EEPROM.write(addr, 3);
+  bool flash_temp = true;
+  while (flash_temp != false) {
+
+    if ( is_button_not_high() ) {
+      digitalWrite(led, HIGH);
+    }
+    else {
+      flash_temp = false;
+    }
+    delay(100);
+
+    if ( is_button_not_high() ) {
+      digitalWrite(led, LOW);
+    }
+    else {
+      flash_temp = false;;
+    }
+    delay(100);
   }
 
   return 1;
@@ -94,47 +121,24 @@ struct opManager {
 } opManagerSt;
 
 void Interrupt_f() {
-
-  if ( state == 0 ) {
-    state = 2;
-  }
-
-  if ( state < 4 ) {
-    state++;
-  }
-  else {
-    state = 1;
-  }
+  next_state = opManagerSt.next();
 }
 
-void Select_menu_item(int next_item) {
+void Select_menu_item(int next_state) {
 
-  switch (next_item) {
-    case 0:
+  switch (next_state) {
+    case ON:
       On();
       break;
-    case 1:
+    case OFF:
       Off();
       break;
-    case 2:
-      /*if (Pwm() == 1) {
-        int next = opManagerSt.next();
-        Select_menu_item(next);
-        }*/
-      On();
+    case PWM:
+      Pwm();
       break;
-    case 3:
-      Off();
+    case FLASH:
+      Flash();
       break;
-    case 4:
-      On();
-      break;
-      /*case 3:
-        if ( Flash() == 1 ) {
-          int next = opManagerSt.next();
-          Select_menu_item(next);
-        }
-        break;*/
   }
 
 }
@@ -146,15 +150,11 @@ void setup() {
   pinMode(led, OUTPUT);
   pinMode(button, INPUT);
   attachInterrupt(digitalPinToInterrupt(button), Interrupt_f, FALLING);
-
 }
 
 void loop() {
-  //Serial.print("here");
-  Serial.println(state);
-  if ( state > 4 ) {
-    state = 1;
-  }
 
-  Select_menu_item(state);
+  //Serial.println(state);
+
+  Select_menu_item(next_state);
 }
