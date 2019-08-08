@@ -3,6 +3,7 @@
 
 #define BUTTON_PIN 2
 #define LED_PIN 9
+#define ADDR 0
 
 // Instantiate a Bounce object
 Bounce debouncer = Bounce();
@@ -16,6 +17,7 @@ volatile int status_counter = 0;
 
 volatile int brightness = 0;    // how bright the LED is
 volatile int fadeAmount = 5;    // how many points to fade the LED by
+volatile int eeprom_read_value;
 
 void setup() {
 
@@ -33,10 +35,24 @@ void setup() {
   //Setup the LED
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, ledState);
+  eeprom_read_value = EEPROM.read(ADDR);
+  if ( eeprom_read_value == 0 ) {
+    buttonState = 1;
+  }
+  else if ( eeprom_read_value == 1 ) {
+    buttonState = 2;
+  }
+  else if ( eeprom_read_value == 2 ) {
+    buttonState = 3;
+  }
+  else if ( eeprom_read_value == 3 ) {
+    buttonState = 4;
+  }
 
 }
 
 void Flash() {
+  EEPROM.write(ADDR, 0);
   if ( millis() - buttonPressTimeStamp >= 500 ) {
     buttonPressTimeStamp = millis();
     if ( ledState == HIGH ) ledState = LOW;
@@ -47,16 +63,19 @@ void Flash() {
 }
 
 void High() {
+  EEPROM.write(ADDR, 1);
   digitalWrite(LED_PIN, HIGH);
   Serial.println("Retriggered high");
 }
 
 void Low() {
+  EEPROM.write(ADDR, 2);
   digitalWrite(LED_PIN, LOW);
   Serial.println("Retriggered low");
 }
 
 void Pwm() {
+  EEPROM.write(ADDR, 3);
   // set the brightness of pin 9:
   analogWrite(LED_PIN, brightness);
 
@@ -102,7 +121,6 @@ void loop() {
         buttonState = 4;
       }
 
-      //buttonState = 1;
       Serial.println("Button pressed (state 1)");
       buttonPressTimeStamp = millis();
       status_counter++;
