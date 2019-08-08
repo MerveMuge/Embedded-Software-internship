@@ -1,13 +1,5 @@
-
-/*
-  DESCRIPTION
-  ====================
-  Example of the bounce library that shows how to retrigger an event when a button is held down.
-  In this case, the debug LED will blink every 500 ms as long as the button is held down.
-  Open the Serial Monitor for debug messages.
-*/
-
 #include "Bounce2.h"
+#include <EEPROM.h>
 
 #define BUTTON_PIN 2
 #define LED_PIN 9
@@ -15,15 +7,15 @@
 // Instantiate a Bounce object
 Bounce debouncer = Bounce();
 
-int buttonState;
-unsigned long buttonPressTimeStamp;
+volatile int buttonState;
+volatile unsigned long buttonPressTimeStamp;
 
-int ledState;
+volatile int ledState;
 
-int status_counter = 0;
+volatile int status_counter = 0;
 
-int brightness = 0;    // how bright the LED is
-int fadeAmount = 5;    // how many points to fade the LED by
+volatile int brightness = 0;    // how bright the LED is
+volatile int fadeAmount = 5;    // how many points to fade the LED by
 
 void setup() {
 
@@ -42,6 +34,41 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, ledState);
 
+}
+
+void Flash() {
+  if ( millis() - buttonPressTimeStamp >= 500 ) {
+    buttonPressTimeStamp = millis();
+    if ( ledState == HIGH ) ledState = LOW;
+    else if ( ledState == LOW ) ledState = HIGH;
+    digitalWrite(LED_PIN, ledState );
+    Serial.println("Retriggering button");
+  }
+}
+
+void High() {
+  digitalWrite(LED_PIN, HIGH);
+  Serial.println("Retriggered high");
+}
+
+void Low() {
+  digitalWrite(LED_PIN, LOW);
+  Serial.println("Retriggered low");
+}
+
+void Pwm() {
+  // set the brightness of pin 9:
+  analogWrite(LED_PIN, brightness);
+
+  // change the brightness for next time through the loop:
+  brightness = brightness + fadeAmount;
+
+  // reverse the direction of the fading at the ends of the fade:
+  if (brightness <= 0 || brightness >= 255) {
+    fadeAmount = -fadeAmount;
+  }
+  // wait for 30 milliseconds to see the dimming effect
+  delay(30);
 }
 
 void loop() {
@@ -86,36 +113,16 @@ void loop() {
     }
   }
   if  ( buttonState == 1 ) {
-    if ( millis() - buttonPressTimeStamp >= 500 ) {
-      buttonPressTimeStamp = millis();
-      if ( ledState == HIGH ) ledState = LOW;
-      else if ( ledState == LOW ) ledState = HIGH;
-      digitalWrite(LED_PIN, ledState );
-      Serial.println("Retriggering button");
-    }
+    Flash();
   }
   else if (buttonState == 2) {
-    digitalWrite(LED_PIN, HIGH);
-    Serial.println("Retriggered high");
+    High();
   }
   else if (buttonState == 3) {
-    digitalWrite(LED_PIN, LOW);
-    Serial.println("Retriggered low");
+    Low();
   }
   else if (buttonState == 4) {
-
-    // set the brightness of pin 9:
-    analogWrite(LED_PIN, brightness);
-
-    // change the brightness for next time through the loop:
-    brightness = brightness + fadeAmount;
-
-    // reverse the direction of the fading at the ends of the fade:
-    if (brightness <= 0 || brightness >= 255) {
-      fadeAmount = -fadeAmount;
-    }
-    // wait for 30 milliseconds to see the dimming effect
-    delay(30);
+    Pwm();
   }
 
 
