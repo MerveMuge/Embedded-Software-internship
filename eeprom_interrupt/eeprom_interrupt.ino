@@ -1,160 +1,122 @@
-#include <EEPROM.h>
 
-#define addr 0
-#define led 9
-#define button 2
+/*
+  DESCRIPTION
+  ====================
+  Example of the bounce library that shows how to retrigger an event when a button is held down.
+  In this case, the debug LED will blink every 500 ms as long as the button is held down.
+  Open the Serial Monitor for debug messages.
+*/
 
-volatile int next_state = 0;
+#include "Bounce2.h"
 
-bool is_button_not_high() {
+#define BUTTON_PIN 2
+#define LED_PIN 9
 
-  if ( !(digitalRead(button) == HIGH) ) {
-    return true;
-  } else {
-    return false;
-  }
-}
+// Instantiate a Bounce object
+Bounce debouncer = Bounce();
 
-void On() {
-  Serial.println("HIGH");
-  digitalWrite(led, HIGH);
-  EEPROM.write(addr, 0);
-}
+int buttonState;
+unsigned long buttonPressTimeStamp;
 
-void Off() {
-  Serial.println("LOW");
-  digitalWrite(led, LOW);
-  EEPROM.write(addr, 1);
-}
+int ledState;
 
-int Pwm() {
-  Serial.println("PWM");
-  int brightness = 0;    // how bright the LED is
-  int fade_amount = 5;    // how many points to fade the LED by
-  EEPROM.write(addr, 2);
-  bool pwm_temp = true;
-  while ( pwm_temp != false ) {
+int status_counter = 0;
 
-    if ( is_button_not_high() )
-      analogWrite(led, brightness);
-    else {
-      pwm_temp = false;
-    }
-
-    if ( is_button_not_high() )
-      brightness = brightness + fade_amount;
-    else {
-      pwm_temp = false;
-    }
-
-    if ( is_button_not_high() ) {
-      if (brightness <= 0 || brightness >= 255) {
-        fade_amount = -fade_amount;
-      }
-    }
-    else {
-      pwm_temp = false;
-    }
-    delay(30);
-  }
-
-  return 1;
-}
-
-int Flash() {
-  Serial.println("FLASH");
-  EEPROM.write(addr, 3);
-  bool flash_temp = true;
-  while (flash_temp != false) {
-
-    if ( is_button_not_high() ) {
-      digitalWrite(led, HIGH);
-    }
-    else {
-      flash_temp = false;
-    }
-    delay(100);
-
-    if ( is_button_not_high() ) {
-      digitalWrite(led, LOW);
-    }
-    else {
-      flash_temp = false;;
-    }
-    delay(100);
-  }
-
-  return 1;
-}
-
-enum opMode {
-  ON,
-  OFF,
-  PWM,
-  FLASH
-};
-
-struct opManager {
-  private:
-    opMode m_opMode;
-
-  public:
-    /*opManager(opMode mode) {
-      m_opMode = mode;
-      }*/
-    opMode next() {
-      if ( m_opMode == FLASH )
-        m_opMode = ON;
-      else {
-        int temp_opMode = m_opMode;
-        temp_opMode++;
-        m_opMode = (opMode) temp_opMode;
-      }
-
-      return m_opMode;
-    }
-
-    opMode currentMode() {
-      return m_opMode;
-    }
-
-} opManagerSt;
-
-void Interrupt_f() {
-  next_state = opManagerSt.next();
-}
-
-void Select_menu_item(int next_state) {
-
-  switch (next_state) {
-    case ON:
-      On();
-      break;
-    case OFF:
-      Off();
-      break;
-    case PWM:
-      Pwm();
-      break;
-    case FLASH:
-      Flash();
-      break;
-  }
-
-}
-
+int brightness = 0;    // how bright the LED is
+int fadeAmount = 5;    // how many points to fade the LED by
 
 void setup() {
 
   Serial.begin(115200);
-  pinMode(led, OUTPUT);
-  pinMode(button, INPUT);
-  attachInterrupt(digitalPinToInterrupt(button), Interrupt_f, FALLING);
+
+  // Setup the button
+  pinMode(BUTTON_PIN, INPUT);
+  // Activate internal pull-up
+  digitalWrite(BUTTON_PIN, HIGH);
+
+  // After setting up the button, setup debouncer
+  debouncer.attach(BUTTON_PIN);
+  debouncer.interval(5);
+
+  //Setup the LED
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, ledState);
+
 }
 
 void loop() {
+  // Update the debouncer and get the changed state
+  boolean changed = debouncer.update();
 
-  //Serial.println(state);
+  if ( changed ) {
+    // Get the update value
+    int value = debouncer.read();
+    if ( value == HIGH) {
+      ledState = LOW;
+      digitalWrite(LED_PIN, ledState );
 
-  Select_menu_item(next_state);
+      //buttonState = 0;
+      Serial.println("Button released (state 0)");
+
+    } else {
+      ledState = HIGH;
+      digitalWrite(LED_PIN, ledState );
+
+      if (status_counter == 0) {
+        buttonState = 2;
+      }
+      else if ( status_counter == 1 ) {
+        buttonState = 1;
+      }
+      else if (status_counter == 2) {
+        buttonState = 3;
+      }
+      else if (status_counter == 3) {
+        buttonState = 4;
+      }
+
+      //buttonState = 1;
+      Serial.println("Button pressed (state 1)");
+      buttonPressTimeStamp = millis();
+      status_counter++;
+      if (status_counter == 4) {
+        status_counter = 0;
+      }
+
+    }
+  }
+  if  ( buttonState == 1 ) {
+    if ( millis() - buttonPressTimeStamp >= 500 ) {
+      buttonPressTimeStamp = millis();
+      if ( ledState == HIGH ) ledState = LOW;
+      else if ( ledState == LOW ) ledState = HIGH;
+      digitalWrite(LED_PIN, ledState );
+      Serial.println("Retriggering button");
+    }
+  }
+  else if (buttonState == 2) {
+    digitalWrite(LED_PIN, HIGH);
+    Serial.println("Retriggered high");
+  }
+  else if (buttonState == 3) {
+    digitalWrite(LED_PIN, LOW);
+    Serial.println("Retriggered low");
+  }
+  else if (buttonState == 4) {
+
+    // set the brightness of pin 9:
+    analogWrite(LED_PIN, brightness);
+
+    // change the brightness for next time through the loop:
+    brightness = brightness + fadeAmount;
+
+    // reverse the direction of the fading at the ends of the fade:
+    if (brightness <= 0 || brightness >= 255) {
+      fadeAmount = -fadeAmount;
+    }
+    // wait for 30 milliseconds to see the dimming effect
+    delay(30);
+  }
+
+
 }
