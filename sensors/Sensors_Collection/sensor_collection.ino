@@ -1,9 +1,27 @@
-#define TEMPRATURE_PIN 1
+#define TEMPERATURE_PIN 1
 
 #define LDR_LED_PIN 13
 #define LDR_INPUT_PIN A0
 
 #define RELAY_PIN 4
+
+class Temperature {
+  public:
+    virtual void temperature() {
+      int val = analogRead(TEMPERATURE_PIN);
+      float mv = ( val / 1024.0) * 5000;
+      float cel = mv / 10;
+      float farh = (cel * 9) / 5 + 32;
+
+      Serial.print("TEMPRATURE = ");
+      Serial.print(cel);
+      Serial.print("*C");
+      Serial.println();
+      delay(1000);
+    }
+
+};
+Temperature *a;
 
 void setup()
 {
@@ -13,6 +31,8 @@ void setup()
   pinMode(LDR_INPUT_PIN, INPUT);
 
   pinMode(RELAY_PIN , OUTPUT);
+
+  a = new Temperature();
 }
 
 void relay() {
@@ -27,18 +47,7 @@ void relay() {
 
 }
 
-void temprature() {
-  int val = analogRead(TEMPRATURE_PIN);
-  float mv = ( val / 1024.0) * 5000;
-  float cel = mv / 10;
-  float farh = (cel * 9) / 5 + 32;
 
-  Serial.print("TEMPRATURE = ");
-  Serial.print(cel);
-  Serial.print("*C");
-  Serial.println();
-  delay(1000);
-}
 
 void photoresistor_LDR() {
   int ldrStatus = analogRead(LDR_INPUT_PIN);
@@ -59,7 +68,8 @@ void photoresistor_LDR() {
 }
 void loop()
 {
-  temprature();
+
+  a->temperature();
 
   photoresistor_LDR();
 
