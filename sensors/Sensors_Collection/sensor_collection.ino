@@ -3,12 +3,28 @@
 #define LDR_LED_PIN 13
 #define LDR_INPUT_PIN A0
 
+#define RELAY_PIN 4
+
 void setup()
 {
   Serial.begin(115200);
 
   pinMode(LDR_LED_PIN, OUTPUT);
   pinMode(LDR_INPUT_PIN, INPUT);
+
+  pinMode(RELAY_PIN , OUTPUT);
+}
+
+void relay() {
+  digitalWrite(RELAY_PIN, HIGH);// turn relay ON
+  Serial.println("Relay ON");
+  delay(300);// wait for 5 seconds
+
+
+  digitalWrite(RELAY_PIN, LOW);// turn relay OFF
+  Serial.println("Relay OFF");
+  delay(1000);// wait for 3 secons
+
 }
 
 void temprature() {
@@ -47,5 +63,5 @@ void loop()
 
   photoresistor_LDR();
 
-
+  relay();
 }
