@@ -1,25 +1,29 @@
-int val;
-int tempPin = 1;
+#define ledPin 13
+#define ldrPin A0
 
-void setup()
-{
+void setup() {
+
   Serial.begin(115200);
+  pinMode(ledPin, OUTPUT);
+  pinMode(ldrPin, INPUT);
 }
-void loop()
-{
-  val = analogRead(tempPin);
-  float mv = ( val / 1024.0) * 5000;
-  float cel = mv / 10;
-  float farh = (cel * 9) / 5 + 32;
-  Serial.print("TEMPRATURE = ");
-  Serial.print(cel);
-  Serial.print("*C");
-  Serial.println();
-  delay(1000);
-  /* uncomment this to get temperature in farenhite
-    Serial.print("TEMPRATURE = ");
-    Serial.print(farh);
-    Serial.print("*F");
-    Serial.println();
-  */
+
+void loop() {
+
+  int ldrStatus = analogRead(ldrPin);
+  
+  if (ldrStatus <= 200) {
+
+    digitalWrite(ledPin, HIGH);
+    Serial.print("Its DARK, Turn on the LED : ");
+    Serial.println(ldrStatus);
+
+  } else {
+
+    digitalWrite(ledPin, LOW);
+    Serial.print("Its BRIGHT, Turn off the LED : ");
+    Serial.println(ldrStatus);
+
+  }
+
 }
