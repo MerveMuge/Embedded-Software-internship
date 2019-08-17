@@ -21,7 +21,7 @@ class Temperature {
     }
 
 };
-Temperature *a;
+Temperature * temperature_obj;
 
 class Relay {
   public:
@@ -37,7 +37,30 @@ class Relay {
     }
 
 };
-Relay *r;
+Relay * relay_obj;
+
+class Photoresistor {
+  public:
+    virtual void photoresistor_LDR() {
+      int ldrStatus = analogRead(LDR_INPUT_PIN);
+
+      if (ldrStatus <= 200) {
+
+        digitalWrite(LDR_LED_PIN, HIGH);
+        Serial.print("Its DARK, Turn on the LED : ");
+        Serial.println(ldrStatus);
+
+      } else if (ldrStatus > 500) {
+
+        digitalWrite(LDR_LED_PIN, LOW);
+        Serial.print("Its BRIGHT, Turn off the LED : ");
+        Serial.println(ldrStatus);
+
+      }
+    }
+
+};
+Photoresistor * ldr_obj;
 
 void setup()
 {
@@ -48,34 +71,15 @@ void setup()
 
   pinMode(RELAY_PIN , OUTPUT);
 
-  a = new Temperature();
-  r = new Relay();
+  temperature_obj = new Temperature();
+  relay_obj = new Relay();
+  ldr_obj = new Photoresistor();
 }
 
 
-void photoresistor_LDR() {
-  int ldrStatus = analogRead(LDR_INPUT_PIN);
-
-  if (ldrStatus <= 200) {
-
-    digitalWrite(LDR_LED_PIN, HIGH);
-    Serial.print("Its DARK, Turn on the LED : ");
-    Serial.println(ldrStatus);
-
-  } else if (ldrStatus > 500) {
-
-    digitalWrite(LDR_LED_PIN, LOW);
-    Serial.print("Its BRIGHT, Turn off the LED : ");
-    Serial.println(ldrStatus);
-
-  }
-}
 void loop()
 {
-
-  a->temperature();
-
-  r->relay();
-  photoresistor_LDR();
-
+  temperature_obj->temperature();
+  relay_obj->relay();
+  ldr_obj->photoresistor_LDR();
 }
