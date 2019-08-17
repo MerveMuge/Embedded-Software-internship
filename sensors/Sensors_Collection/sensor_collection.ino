@@ -23,6 +23,22 @@ class Temperature {
 };
 Temperature *a;
 
+class Relay {
+  public:
+    virtual void relay() {
+      digitalWrite(RELAY_PIN, HIGH);// turn relay ON
+      Serial.println("Relay ON");
+      delay(300);// wait for 5 seconds
+
+      digitalWrite(RELAY_PIN, LOW);// turn relay OFF
+      Serial.println("Relay OFF");
+      delay(1000);// wait for 3 secons
+
+    }
+
+};
+Relay *r;
+
 void setup()
 {
   Serial.begin(115200);
@@ -33,20 +49,8 @@ void setup()
   pinMode(RELAY_PIN , OUTPUT);
 
   a = new Temperature();
+  r = new Relay();
 }
-
-void relay() {
-  digitalWrite(RELAY_PIN, HIGH);// turn relay ON
-  Serial.println("Relay ON");
-  delay(300);// wait for 5 seconds
-
-
-  digitalWrite(RELAY_PIN, LOW);// turn relay OFF
-  Serial.println("Relay OFF");
-  delay(1000);// wait for 3 secons
-
-}
-
 
 
 void photoresistor_LDR() {
@@ -71,7 +75,7 @@ void loop()
 
   a->temperature();
 
+  r->relay();
   photoresistor_LDR();
 
-  relay();
 }
