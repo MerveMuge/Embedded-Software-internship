@@ -1,5 +1,8 @@
-#include "Bounce2.h"
 #include <EEPROM.h>
+#include <stdio.h>
+
+#include "Bounce2.h"
+#include "DS1302.h"
 
 #define TEMPERATURE_PIN 1
 
@@ -29,6 +32,46 @@ volatile int status_counter = 0;
 volatile int brightness = 0;    // how bright the LED is
 volatile int fadeAmount = 5;    // how many points to fade the LED by
 volatile int eeprom_read_value;
+
+namespace {
+
+const int kCePin   = 5;  // Chip Enable
+const int kIoPin   = 6;  // Input/Output
+const int kSclkPin = 7;  // Serial Clock
+
+//DS1302 obj
+DS1302 rtc(kCePin, kIoPin, kSclkPin);
+
+String dayAsString(const Time::Day day) {
+  switch (day) {
+    case Time::kSunday: return "Sunday";
+    case Time::kMonday: return "Monday";
+    case Time::kTuesday: return "Tuesday";
+    case Time::kWednesday: return "Wednesday";
+    case Time::kThursday: return "Thursday";
+    case Time::kFriday: return "Friday";
+    case Time::kSaturday: return "Saturday";
+  }
+  return "(unknown day)";
+}
+
+void printTime() {
+  // Get the current time and date from the chip.
+  Time t = rtc.time();
+
+  // Name the day of the week.
+  const String day = dayAsString(t.day);
+
+  char buf[50];
+  snprintf(buf, sizeof(buf), "%s %04d-%02d-%02d %02d:%02d:%02d",
+           day.c_str(),
+           t.yr, t.mon, t.date,
+           t.hr, t.min, t.sec);
+
+  Serial.println(buf);
+}
+
+}
 
 class Temperature {
   public:
@@ -94,10 +137,10 @@ void setup() {
   // Setup the button
   pinMode(BUTTON_PIN, INPUT);
   // Activate internal pull-up
-  
+
   pinMode(LDR_LED_PIN, OUTPUT);
   pinMode(LDR_INPUT_PIN, INPUT);
-  
+
   digitalWrite(BUTTON_PIN, HIGH);
   attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), blink , FALLING);
 
@@ -108,11 +151,20 @@ void setup() {
   //Setup the LED
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, ledState);
-  
+
   temperature_obj = new Temperature();
   ldr_obj = new Photoresistor();
   relay_obj = new Relay();
-  
+
+  rtc.writeProtect(false);
+  rtc.halt(false);
+
+  //define start time //year / month / day /-/hour /min / sec /-/ day
+  Time t(2019, 8, 22, 14, 25, 50, Time::kThursday);
+
+  // Set the time on the chip.
+  rtc.time(t);
+
   eeprom_read_value = EEPROM.read(ADDR);
 
   if ( eeprom_read_value == 0 ) {
@@ -239,7 +291,8 @@ void loop() {
   temperature_obj->temperature();
   ldr_obj->photoresistor_LDR();
   relay_obj->relay();
-  
+  printTime();
+
   boolean changed = debouncer.update();
 
   if ( changed ) {
