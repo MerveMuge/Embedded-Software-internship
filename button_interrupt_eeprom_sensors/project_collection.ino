@@ -107,50 +107,46 @@ void pwm() {
   delay(30);
   Serial.println("pwm");
 }
+void button_status_changed() {
+  // Get the update value
+  int value = debouncer.read();
+  if ( value == HIGH) {
+    ledState = LOW;
+    digitalWrite(LED_PIN, ledState );
 
-void loop() {
-  // Update the debouncer and get the changed state
-  boolean changed = debouncer.update();
+    //buttonState = 0;
+    Serial.println("Button released (state 0)");
 
-  if ( changed ) {
-    // Get the update value
-    int value = debouncer.read();
-    if ( value == HIGH) {
-      ledState = LOW;
-      digitalWrite(LED_PIN, ledState );
+  } else {
+    ledState = HIGH;
+    digitalWrite(LED_PIN, ledState );
 
-      //buttonState = 0;
-      Serial.println("Button released (state 0)");
+    if (status_counter == 0) {
+      buttonState = 2;
 
-    } else {
-      ledState = HIGH;
-      digitalWrite(LED_PIN, ledState );
+    }
+    else if ( status_counter == 1 ) {
+      buttonState = 1;
+    }
+    else if (status_counter == 2) {
+      buttonState = 3;
+    }
+    else if (status_counter == 3) {
+      buttonState = 4;
+    }
 
-      if (status_counter == 0) {
-        buttonState = 2;
-
-      }
-      else if ( status_counter == 1 ) {
-        buttonState = 1;
-      }
-      else if (status_counter == 2) {
-        buttonState = 3;
-      }
-      else if (status_counter == 3) {
-        buttonState = 4;
-      }
-
-      Serial.println("Button pressed (state 1)");
-      buttonPressTimeStamp = millis();
-      status_counter++;
-      if (status_counter == 4) {
-        status_counter = 0;
-      }
-
+    Serial.println("Button pressed (state 1)");
+    buttonPressTimeStamp = millis();
+    status_counter++;
+    if (status_counter == 4) {
+      status_counter = 0;
     }
 
   }
 
+}
+
+void led_menu() {
   if  ( mod == 1 ) {
     flash();
   }
@@ -163,5 +159,16 @@ void loop() {
   else if (mod == 0) {
     pwm();
   }
+}
+
+
+void loop() {
+  // Update the debouncer and get the changed state
+  boolean changed = debouncer.update();
+
+  if ( changed ) {
+    button_status_changed();
+  }
+  led_menu();
 
 }
