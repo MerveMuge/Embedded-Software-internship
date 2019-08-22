@@ -1,6 +1,13 @@
 #include "Bounce2.h"
 #include <EEPROM.h>
 
+#define TEMPERATURE_PIN 1
+
+#define LDR_LED_PIN 13
+#define LDR_INPUT_PIN A0
+
+#define RELAY_PIN 4
+
 #define BUTTON_PIN 2
 #define LED_PIN 9
 #define ADDR 0
@@ -23,6 +30,47 @@ volatile int brightness = 0;    // how bright the LED is
 volatile int fadeAmount = 5;    // how many points to fade the LED by
 volatile int eeprom_read_value;
 
+class Temperature {
+  public:
+    virtual void temperature() {
+      int val = analogRead(TEMPERATURE_PIN);
+      float mv = ( val / 1024.0) * 5000;
+      float cel = mv / 10;
+      float farh = (cel * 9) / 5 + 32;
+
+      Serial.print("TEMPRATURE = ");
+      Serial.print(cel);
+      Serial.print("*C");
+      Serial.println();
+      delay(1000);
+    }
+
+};
+Temperature * temperature_obj;
+
+class Photoresistor {
+  public:
+    virtual void photoresistor_LDR() {
+      int ldrStatus = analogRead(LDR_INPUT_PIN);
+
+      if (ldrStatus <= 200) {
+
+        digitalWrite(LDR_LED_PIN, HIGH);
+        Serial.print("Its DARK, Turn on the LED : ");
+        Serial.println(ldrStatus);
+
+      } else if (ldrStatus > 500) {
+
+        digitalWrite(LDR_LED_PIN, LOW);
+        Serial.print("Its BRIGHT, Turn off the LED : ");
+        Serial.println(ldrStatus);
+
+      }
+    }
+
+};
+Photoresistor * ldr_obj;
+
 void setup() {
 
   Serial.begin(115200);
@@ -30,6 +78,10 @@ void setup() {
   // Setup the button
   pinMode(BUTTON_PIN, INPUT);
   // Activate internal pull-up
+  
+  pinMode(LDR_LED_PIN, OUTPUT);
+  pinMode(LDR_INPUT_PIN, INPUT);
+  
   digitalWrite(BUTTON_PIN, HIGH);
   attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), blink , FALLING);
 
@@ -40,7 +92,10 @@ void setup() {
   //Setup the LED
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, ledState);
-
+  
+  temperature_obj = new Temperature();
+  ldr_obj = new Photoresistor();
+  
   eeprom_read_value = EEPROM.read(ADDR);
 
   if ( eeprom_read_value == 0 ) {
@@ -163,6 +218,9 @@ void led_menu() {
 
 
 void loop() {
+  temperature_obj->temperature();
+  ldr_obj->photoresistor_LDR();
+  
   // Update the debouncer and get the changed state
   boolean changed = debouncer.update();
 
