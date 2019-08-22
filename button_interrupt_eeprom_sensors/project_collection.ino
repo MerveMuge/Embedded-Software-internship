@@ -71,6 +71,22 @@ class Photoresistor {
 };
 Photoresistor * ldr_obj;
 
+class Relay {
+  public:
+    virtual void relay() {
+      digitalWrite(RELAY_PIN, HIGH);// turn relay ON
+      Serial.println("Relay ON");
+      delay(300);// wait for 5 seconds
+
+      digitalWrite(RELAY_PIN, LOW);// turn relay OFF
+      Serial.println("Relay OFF");
+      delay(1000);// wait for 3 secons
+
+    }
+
+};
+Relay * relay_obj;
+
 void setup() {
 
   Serial.begin(115200);
@@ -95,6 +111,7 @@ void setup() {
   
   temperature_obj = new Temperature();
   ldr_obj = new Photoresistor();
+  relay_obj = new Relay();
   
   eeprom_read_value = EEPROM.read(ADDR);
 
@@ -218,10 +235,11 @@ void led_menu() {
 
 
 void loop() {
+  // Update the debouncer and get the changed state
   temperature_obj->temperature();
   ldr_obj->photoresistor_LDR();
+  relay_obj->relay();
   
-  // Update the debouncer and get the changed state
   boolean changed = debouncer.update();
 
   if ( changed ) {
