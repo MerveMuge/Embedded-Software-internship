@@ -51,7 +51,7 @@ void setup() {
 
 }
 
-void Flash() {
+void flash() {
   EEPROM.write(ADDR, 0);
   if ( millis() - buttonPressTimeStamp >= 500 ) {
     buttonPressTimeStamp = millis();
@@ -62,19 +62,19 @@ void Flash() {
   }
 }
 
-void High() {
+void high() {
   EEPROM.write(ADDR, 1);
   digitalWrite(LED_PIN, HIGH);
   Serial.println("Retriggered high");
 }
 
-void Low() {
+void low() {
   EEPROM.write(ADDR, 2);
   digitalWrite(LED_PIN, LOW);
   Serial.println("Retriggered low");
 }
 
-void Pwm() {
+void pwm() {
   EEPROM.write(ADDR, 3);
   // set the brightness of pin 9:
   analogWrite(LED_PIN, brightness);
@@ -110,6 +110,7 @@ void loop() {
 
       if (status_counter == 0) {
         buttonState = 2;
+        
       }
       else if ( status_counter == 1 ) {
         buttonState = 1;
@@ -129,18 +130,21 @@ void loop() {
       }
 
     }
+
+
+    
   }
   if  ( buttonState == 1 ) {
-    Flash();
+    flash();
   }
   else if (buttonState == 2) {
-    High();
+    high();
   }
   else if (buttonState == 3) {
-    Low();
+    low();
   }
   else if (buttonState == 4) {
-    Pwm();
+    pwm();
   }
 
 
