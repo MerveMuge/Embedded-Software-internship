@@ -4,13 +4,13 @@
 #include "Bounce2.h"
 #include "DS1302.h"
 #include "Photoresistor.h"
+#include "Temperature.h"
 
-#define TEMPERATURE_PIN 1
+#define TEMPERATURE_PIN A1
+#define RELAY_PIN 4
 
 #define LDR_LED_PIN 13
 #define LDR_INPUT_PIN A0
-
-#define RELAY_PIN 4
 
 #define BUTTON_PIN 2
 #define LED_PIN 9
@@ -18,6 +18,8 @@
 
 // Instantiate a Bounce object
 Bounce debouncer = Bounce();
+Temperature temperature(TEMPERATURE_PIN);
+Photoresistor photoresistor(LDR_LED_PIN, LDR_INPUT_PIN);
 
 volatile int buttonState;
 volatile unsigned long buttonPressTimeStamp;
@@ -27,7 +29,6 @@ volatile int count = 0;
 volatile int mod = 0;
 
 volatile int ledState;
-
 volatile int status_counter = 0;
 
 volatile int brightness = 0;    // how bright the LED is
@@ -41,8 +42,6 @@ const int kSclkPin = 7;  // Serial Clock
 
 //DS1302 obj
 DS1302 rtc(kCePin, kIoPin, kSclkPin);
-Photoresistor photoresistor(LDR_LED_PIN, LDR_INPUT_PIN);
-
 
 String dayAsString(const Time::Day day) {
   switch (day) {
@@ -74,24 +73,6 @@ void printTime() {
 }
 
 }
-
-class Temperature {
-  public:
-    virtual void temperature() {
-      int val = analogRead(TEMPERATURE_PIN);
-      float mv = ( val / 1024.0) * 5000;
-      float cel = mv / 10;
-      float farh = (cel * 9) / 5 + 32;
-
-      Serial.print("TEMPRATURE = ");
-      Serial.print(cel);
-      Serial.print("*C");
-      Serial.println();
-      //delay(1000);
-    }
-
-};
-Temperature * temperature_obj;
 
 class Relay {
   public:
@@ -127,10 +108,6 @@ void setup() {
   // After setting up the button, setup debouncer
   debouncer.attach(BUTTON_PIN);
   debouncer.interval(5);
-
-  temperature_obj = new Temperature();
-  //ldr_obj = new Photoresistor();
-  relay_obj = new Relay();
 
   rtc.writeProtect(false);
   rtc.halt(false);
@@ -259,9 +236,9 @@ void led_menu() {
 
 void loop() {
 
-  temperature_obj->temperature();
+  temperature.evaluateTemperature();
   photoresistor.ldr();
-  //relay_obj->relay();
+
   printTime();
 
   // Update the debouncer and get the changed state
