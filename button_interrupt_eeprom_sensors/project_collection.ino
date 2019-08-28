@@ -3,6 +3,7 @@
 
 #include "Bounce2.h"
 #include "DS1302.h"
+#include "Photoresistor.h"
 
 #define TEMPERATURE_PIN 1
 
@@ -21,7 +22,7 @@ Bounce debouncer = Bounce();
 volatile int buttonState;
 volatile unsigned long buttonPressTimeStamp;
 
-const int debouncePeriod = 50; // <<< you may need more or less here
+const int debouncePeriod = 50; // << may need more or less here
 volatile int count = 0;
 volatile int mod = 0;
 
@@ -31,7 +32,6 @@ volatile int status_counter = 0;
 
 volatile int brightness = 0;    // how bright the LED is
 volatile int fadeAmount = 5;    // how many points to fade the LED by
-volatile int eeprom_read_value;
 
 namespace {
 
@@ -41,6 +41,8 @@ const int kSclkPin = 7;  // Serial Clock
 
 //DS1302 obj
 DS1302 rtc(kCePin, kIoPin, kSclkPin);
+Photoresistor photoresistor(LDR_LED_PIN, LDR_INPUT_PIN);
+
 
 String dayAsString(const Time::Day day) {
   switch (day) {
@@ -85,46 +87,22 @@ class Temperature {
       Serial.print(cel);
       Serial.print("*C");
       Serial.println();
-      delay(1000);
+      //delay(1000);
     }
 
 };
 Temperature * temperature_obj;
 
-class Photoresistor {
-  public:
-    virtual void photoresistor_LDR() {
-      int ldrStatus = analogRead(LDR_INPUT_PIN);
-
-      if (ldrStatus <= 200) {
-
-        digitalWrite(LDR_LED_PIN, HIGH);
-        Serial.print("Its DARK, Turn on the LED : ");
-        Serial.println(ldrStatus);
-
-      } else if (ldrStatus > 500) {
-
-        digitalWrite(LDR_LED_PIN, LOW);
-        Serial.print("Its BRIGHT, Turn off the LED : ");
-        Serial.println(ldrStatus);
-
-      }
-    }
-
-};
-Photoresistor * ldr_obj;
-
 class Relay {
   public:
     virtual void relay() {
+      Serial.println("Relay..");
       digitalWrite(RELAY_PIN, HIGH);// turn relay ON
-      Serial.println("Relay ON");
+      //Serial.println("Relay ON");
       delay(300);// wait for 5 seconds
 
       digitalWrite(RELAY_PIN, LOW);// turn relay OFF
-      Serial.println("Relay OFF");
-      delay(1000);// wait for 3 secons
-
+      //Serial.println("Relay OFF");
     }
 
 };
@@ -136,49 +114,57 @@ void setup() {
 
   // Setup the button
   pinMode(BUTTON_PIN, INPUT);
+  //pinMode(LDR_INPUT_PIN, INPUT);
   // Activate internal pull-up
 
-  pinMode(LDR_LED_PIN, OUTPUT);
-  pinMode(LDR_INPUT_PIN, INPUT);
+  // pinMode(LDR_LED_PIN, OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
 
   digitalWrite(BUTTON_PIN, HIGH);
+  digitalWrite(LED_PIN, ledState);
   attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), blink , FALLING);
 
   // After setting up the button, setup debouncer
   debouncer.attach(BUTTON_PIN);
   debouncer.interval(5);
 
-  //Setup the LED
-  pinMode(LED_PIN, OUTPUT);
-  digitalWrite(LED_PIN, ledState);
-
   temperature_obj = new Temperature();
-  ldr_obj = new Photoresistor();
+  //ldr_obj = new Photoresistor();
   relay_obj = new Relay();
 
   rtc.writeProtect(false);
   rtc.halt(false);
 
   //define start time //year / month / day /-/hour /min / sec /-/ day
-  Time t(2019, 8, 22, 14, 25, 50, Time::kThursday);
+  Time t(2019, 8, 27, 17, 06, 50, Time::kTuesday);
 
   // Set the time on the chip.
   rtc.time(t);
 
-  eeprom_read_value = EEPROM.read(ADDR);
+  int eeprom_read_value = EEPROM.read(ADDR);
+  Serial.print("eeprom read value ");
+  Serial.println( eeprom_read_value);
 
-  if ( eeprom_read_value == 0 ) {
-    buttonState = 1;
-  }
-  else if ( eeprom_read_value == 1 ) {
-    buttonState = 2;
-  }
-  else if ( eeprom_read_value == 2 ) {
-    buttonState = 3;
-  }
-  else if ( eeprom_read_value == 3 ) {
-    buttonState = 4;
-  }
+  /*if ( eeprom_read_value == 0 ) {
+    mod = 1;
+    count = 1;
+    Serial.println("mod 1");
+    }
+    else if ( eeprom_read_value == 1 ) {
+    mod = 2;
+    count = 2;
+    Serial.println("mod 2");
+    }
+    else if ( eeprom_read_value == 2 ) {
+    mod = 3;
+    count = 3;
+    Serial.println("mod 3");
+    }
+    else if ( eeprom_read_value == 3 ) {
+    mod = 0;
+    count = 0;
+    Serial.println("mod 0");
+    }*/
 
 }
 
@@ -231,6 +217,7 @@ void pwm() {
   delay(30);
   Serial.println("pwm");
 }
+
 void button_status_changed() {
   // Get the update value
   int value = debouncer.read();
@@ -245,29 +232,13 @@ void button_status_changed() {
     ledState = HIGH;
     digitalWrite(LED_PIN, ledState );
 
-    if (status_counter == 0) {
-      buttonState = 2;
-
-    }
-    else if ( status_counter == 1 ) {
-      buttonState = 1;
-    }
-    else if (status_counter == 2) {
-      buttonState = 3;
-    }
-    else if (status_counter == 3) {
-      buttonState = 4;
-    }
-
     Serial.println("Button pressed (state 1)");
     buttonPressTimeStamp = millis();
     status_counter++;
     if (status_counter == 4) {
       status_counter = 0;
     }
-
   }
-
 }
 
 void led_menu() {
@@ -287,12 +258,13 @@ void led_menu() {
 
 
 void loop() {
-  // Update the debouncer and get the changed state
+
   temperature_obj->temperature();
-  ldr_obj->photoresistor_LDR();
-  relay_obj->relay();
+  photoresistor.ldr();
+  //relay_obj->relay();
   printTime();
 
+  // Update the debouncer and get the changed state
   boolean changed = debouncer.update();
 
   if ( changed ) {
