@@ -5,6 +5,7 @@
 #include "DS1302.h"
 #include "Photoresistor.h"
 #include "Temperature.h"
+#include "Relay.h"
 
 #define TEMPERATURE_PIN A1
 #define RELAY_PIN 11
@@ -20,6 +21,7 @@
 Bounce debouncer = Bounce();
 Temperature temperature(TEMPERATURE_PIN);
 Photoresistor photoresistor(LDR_LED_PIN, LDR_INPUT_PIN);
+Relay relay(RELAY_PIN);
 
 volatile int buttonState;
 volatile unsigned long buttonPressTimeStamp;
@@ -74,17 +76,6 @@ void printTime() {
   Serial.println(buf);
 }
 
-}
-
-void relay() {
-  digitalWrite(RELAY_PIN, HIGH);// turn relay ON
-  Serial.println("Relay ON");
-  delay(700);// wait for 5 seconds
-
-
-  digitalWrite(RELAY_PIN, LOW);// turn relay OFF
-  Serial.println("Relay OFF");
-  delay(700);// wait for 3 secons
 }
 
 void setup() {
@@ -198,7 +189,6 @@ void button_status_changed() {
     ledState = LOW;
     digitalWrite(LED_PIN, ledState );
 
-    //buttonState = 0;
     Serial.println("Button released (state 0)");
 
   } else {
@@ -232,9 +222,10 @@ void led_menu() {
 
 void loop() {
 
+  Serial.println(eeprom_read_value);
   temperature.evaluateTemperature();
   photoresistor.ldr();
-  relay();
+  relay.relay_process(700);
   printTime();
 
   // Update the debouncer and get the changed state
