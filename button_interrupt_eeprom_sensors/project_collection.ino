@@ -7,7 +7,7 @@
 #include "Temperature.h"
 
 #define TEMPERATURE_PIN A1
-#define RELAY_PIN 4
+#define RELAY_PIN 11
 
 #define LDR_LED_PIN 13
 #define LDR_INPUT_PIN A0
@@ -33,6 +33,8 @@ volatile int status_counter = 0;
 
 volatile int brightness = 0;    // how bright the LED is
 volatile int fadeAmount = 5;    // how many points to fade the LED by
+
+volatile int eeprom_read_value;
 
 namespace {
 
@@ -74,20 +76,16 @@ void printTime() {
 
 }
 
-class Relay {
-  public:
-    virtual void relay() {
-      Serial.println("Relay..");
-      digitalWrite(RELAY_PIN, HIGH);// turn relay ON
-      //Serial.println("Relay ON");
-      delay(300);// wait for 5 seconds
+void relay() {
+  digitalWrite(RELAY_PIN, HIGH);// turn relay ON
+  Serial.println("Relay ON");
+  delay(700);// wait for 5 seconds
 
-      digitalWrite(RELAY_PIN, LOW);// turn relay OFF
-      //Serial.println("Relay OFF");
-    }
 
-};
-Relay * relay_obj;
+  digitalWrite(RELAY_PIN, LOW);// turn relay OFF
+  Serial.println("Relay OFF");
+  delay(700);// wait for 3 secons
+}
 
 void setup() {
 
@@ -95,11 +93,9 @@ void setup() {
 
   // Setup the button
   pinMode(BUTTON_PIN, INPUT);
-  //pinMode(LDR_INPUT_PIN, INPUT);
-  // Activate internal pull-up
 
-  // pinMode(LDR_LED_PIN, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
+  pinMode(RELAY_PIN , OUTPUT);
 
   digitalWrite(BUTTON_PIN, HIGH);
   digitalWrite(LED_PIN, ledState);
@@ -113,14 +109,14 @@ void setup() {
   rtc.halt(false);
 
   //define start time //year / month / day /-/hour /min / sec /-/ day
-  Time t(2019, 8, 27, 17, 06, 50, Time::kTuesday);
+  Time t(2019, 9, 2, 17, 06, 50, Time::kTuesday);
 
   // Set the time on the chip.
   rtc.time(t);
 
-  int eeprom_read_value = EEPROM.read(ADDR);
-  Serial.print("eeprom read value ");
-  Serial.println( eeprom_read_value);
+  eeprom_read_value = EEPROM.read(ADDR);
+  Serial.println(eeprom_read_value);
+
 
   /*if ( eeprom_read_value == 0 ) {
     mod = 1;
@@ -238,7 +234,7 @@ void loop() {
 
   temperature.evaluateTemperature();
   photoresistor.ldr();
-
+  relay();
   printTime();
 
   // Update the debouncer and get the changed state
