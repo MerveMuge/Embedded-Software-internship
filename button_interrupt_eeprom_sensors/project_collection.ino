@@ -15,10 +15,11 @@
 
 #define BUTTON_PIN 2
 #define LED_PIN 9
-#define ADDR 0
+#define ADDR 1
 
 // Instantiate a Bounce object
 Bounce debouncer = Bounce();
+
 Temperature temperature(TEMPERATURE_PIN);
 Photoresistor photoresistor(LDR_LED_PIN, LDR_INPUT_PIN);
 Relay relay(RELAY_PIN);
@@ -106,29 +107,17 @@ void setup() {
   rtc.time(t);
 
   eeprom_read_value = EEPROM.read(ADDR);
-  Serial.println(eeprom_read_value);
+  Serial.println((int) eeprom_read_value);
 
-
-  /*if ( eeprom_read_value == 0 ) {
+  if (eeprom_read_value == 0 ) { //flash
     mod = 1;
-    count = 1;
-    Serial.println("mod 1");
-    }
-    else if ( eeprom_read_value == 1 ) {
+  } else if ( eeprom_read_value == 1 ) { //high
     mod = 2;
-    count = 2;
-    Serial.println("mod 2");
-    }
-    else if ( eeprom_read_value == 2 ) {
+  } else if ( eeprom_read_value == 2 ) { //low
     mod = 3;
-    count = 3;
-    Serial.println("mod 3");
-    }
-    else if ( eeprom_read_value == 3 ) {
+  } else if ( eeprom_read_value == 3 ) { //pwm
     mod = 0;
-    count = 0;
-    Serial.println("mod 0");
-    }*/
+  }
 
 }
 
