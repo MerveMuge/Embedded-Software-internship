@@ -1,2 +1,1 @@
-# ISSD-internship
-ISSD Embedded Software Engineering Internship - Undergraduate 2019
+# Embedded Software Engineering Internship - Undergraduate 2019
